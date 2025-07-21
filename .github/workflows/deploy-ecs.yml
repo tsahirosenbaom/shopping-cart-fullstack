@@ -2,12 +2,12 @@ name: Deploy ECS Shopping Cart
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'backend/dotnet-api/**'
-      - 'backend/nodejs-search/**'
-      - 'frontend/**'
-      - 'infrastructure/**'
+      - "backend/dotnet-api/**"
+      - "backend/nodejs-search/**"
+      - "frontend/**"
+      - "infrastructure/**"
 
 env:
   AWS_REGION: us-east-1
@@ -21,7 +21,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0'
+          dotnet-version: "8.0"
       - name: Test .NET API
         run: |
           if ls backend/dotnet-api/*.csproj 1> /dev/null 2>&1; then
@@ -37,7 +37,6 @@ jobs:
           if [ -f "frontend/package.json" ]; then
             cd frontend && npm ci && npm test -- --watchAll=false
           fi
-
   deploy-ecs:
     needs: test
     if: github.ref == 'refs/heads/main'
