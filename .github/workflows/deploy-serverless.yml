@@ -87,6 +87,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
       - name: Deploy React App
         env:
           REACT_APP_API_BASE_URL: ${{ needs.deploy-serverless.outputs.api-url }}
@@ -94,8 +95,26 @@ jobs:
           cd frontend
           npm ci && npm run build
           BUCKET_NAME="$STACK_NAME-frontend-$(date +%s)"
-          aws s3 mb s3://$BUCKET_NAME
+
+          aws s3 mb s3://$BUCKET_NAME --region $AWS_REGION
+
+          # Enable public access to the bucket
+          aws s3api put-public-access-block \
+            --bucket $BUCKET_NAME \
+            --public-access-block-configuration \
+            BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false
+          # Configure as website
           aws s3 website s3://$BUCKET_NAME --index-document index.html
-          aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::'$BUCKET_NAME'/*"}]}'
+          # Set public-read policy
+          aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{
+            "Version":"2012-10-17",
+            "Statement":[{
+              "Effect":"Allow",
+              "Principal":"*",
+              "Action":"s3:GetObject",
+              "Resource":"arn:aws:s3:::'$BUCKET_NAME'/*"
+            }]
+          }'
+          # Upload build
           aws s3 sync build/ s3://$BUCKET_NAME --delete
-          echo "Frontend: http://$BUCKET_NAME.s3-website-${{ env.AWS_REGION }}.amazonaws.com"
+          echo "Frontend: http://$BUCKET_NAME.s3-website-${AWS_REGION}.amazonaws.com"
