@@ -1,216 +1,258 @@
 # Shopping Cart System - Full Stack
 
-A complete shopping cart system with React frontend and multiple backend options.
+Complete shopping cart system organized for development and AWS deployment.
 
-## 🏗️ Architecture Options
+## 🎯 Quick Start
 
-### Option 1: Serverless (Recommended for low traffic)
-- **Frontend**: React app on S3 + CloudFront
-- **Backend**: AWS Lambda + API Gateway + DynamoDB
-- **Cost**: ~$1-5/month (pay per use)
-- **Deployment**: `git push` → automatic deployment
+```bash
+# 1. Verify your setup
+npm run verify
 
-### Option 2: Containerized (For consistent traffic)
-- **Frontend**: React app on S3 + CloudFront
-- **Backend**: ECS Fargate + Application Load Balancer
-- **Cost**: ~$30-35/month (always running)
-- **Deployment**: `git push` → automatic deployment
+# 2. Install all dependencies  
+npm run setup-local
 
-## 🚀 Quick Start
-
-1. **Choose your deployment strategy** (edit `.github/workflows/`)
-2. **Set up AWS credentials** in GitHub Secrets
-3. **Push to main branch** → automatic deployment
+# 3. Start development (choose one)
+npm run dev:frontend    # React app (port 3000)
+npm run dev:backend     # .NET API (port 5002)
+npm run dev:search      # Node.js API (port 3001)
+npm run dev:serverless  # Lambda local (port 3000)
+```
 
 ## 📁 Project Structure
 
 ```
-├── frontend/                 # React + Redux + TypeScript
+shopping-cart-fullstack/
+├── frontend/                    # React + Redux + TypeScript
+│   ├── src/                    # Source code
+│   ├── public/                 # Static assets  
+│   └── package.json           # Dependencies
 ├── backend/
-│   ├── dotnet-api/          # .NET 8 Web API
-│   ├── nodejs-search/       # Node.js search service
-│   └── serverless/          # AWS Lambda functions
-├── infrastructure/          # CloudFormation templates
+│   ├── dotnet-api/            # .NET 8 Web API
+│   │   ├── Controllers/       # API controllers
+│   │   ├── Models/           # Data models
+│   │   └── *.csproj          # Project file
+│   ├── nodejs-search/         # Node.js search service
+│   │   ├── server.js         # Main server file
+│   │   └── package.json      # Dependencies
+│   └── serverless/           # AWS Lambda functions
+│       ├── src/              # Lambda source code
+│       └── template.yaml     # SAM template
+├── infrastructure/           # Deployment scripts
+├── scripts/                 # Helper scripts
+│   ├── verify-setup.sh      # Verify installation
+│   ├── setup-local-dev.sh   # Install dependencies
+│   ├── test-all.sh          # Run all tests
+│   └── choose-deployment.sh # Setup deployment
 └── .github/workflows/       # CI/CD pipelines
+    ├── deploy-serverless.yml.example
+    └── deploy-ecs.yml.example
 ```
 
-## ⚙️ Setup
+## 🛠️ Available Commands
 
-### Prerequisites
-- AWS Account with appropriate permissions
-- GitHub repository
-- Node.js 18+ and .NET 8 installed locally
-
-### 1. GitHub Setup
+### Development
 ```bash
-# Clone or create your repository
-git clone https://github.com/yourusername/shopping-cart-fullstack.git
-cd shopping-cart-fullstack
-
-# Add GitHub secrets (Settings → Secrets and variables → Actions):
-# AWS_ACCESS_KEY_ID
-# AWS_SECRET_ACCESS_KEY
+npm run verify           # Check setup status
+npm run setup-local      # Install all dependencies
+npm run dev:frontend     # Start React app
+npm run dev:backend      # Start .NET API  
+npm run dev:search       # Start Node.js API
+npm run dev:serverless   # Start Lambda local
 ```
 
-### 2. Choose Deployment Strategy
-
-#### For Serverless (Low Cost):
+### Testing
 ```bash
-# Enable serverless workflow
-mv .github/workflows/deploy-serverless.yml.example .github/workflows/deploy-serverless.yml
-
-# Commit and push
-git add .
-git commit -m "Enable serverless deployment"
-git push origin main
+npm run test:all         # Run all tests
+npm run test:frontend    # Test React app
+npm run test:backend     # Test .NET API
+npm run test:search      # Test Node.js API
 ```
 
-#### For ECS (High Availability):
+### Building
 ```bash
-# Enable ECS workflow
-mv .github/workflows/deploy-ecs.yml.example .github/workflows/deploy-ecs.yml
-
-# Commit and push
-git add .
-git commit -m "Enable ECS deployment"
-git push origin main
+npm run build:frontend   # Build React for production
+npm run build:backend    # Build .NET API
 ```
 
-### 3. Monitor Deployment
-- Check GitHub Actions tab for deployment progress
-- First deployment takes 10-15 minutes
-- Subsequent deployments: 3-5 minutes
-
-## 🧪 Local Development
-
-### Frontend (React)
+### Deployment Setup
 ```bash
-cd frontend
-npm install
-npm start  # http://localhost:3000
+npm run setup-deployment # Choose deployment strategy
 ```
 
-### Backend (.NET API)
+## 🔧 Prerequisites
+
+Make sure you have these installed:
+
+- **Node.js 18+** - [Download](https://nodejs.org/)
+- **.NET 8 SDK** - [Download](https://dotnet.microsoft.com/download)
+- **Git** - [Download](https://git-scm.com/)
+- **AWS CLI** (for deployment) - [Install Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- **SAM CLI** (for serverless) - [Install Guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+
+Check prerequisites: `npm run verify`
+
+## 🚀 Development Workflow
+
+1. **Start with verification**:
+   ```bash
+   npm run verify
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm run setup-local
+   ```
+
+3. **Start your components** (in separate terminals):
+   ```bash
+   # Terminal 1: Frontend
+   npm run dev:frontend
+   
+   # Terminal 2: Backend API
+   npm run dev:backend
+   
+   # Terminal 3: Search API  
+   npm run dev:search
+   ```
+
+4. **Access your applications**:
+   - **React App**: http://localhost:3000
+   - **.NET API**: http://localhost:5002/swagger
+   - **Node.js Search**: http://localhost:3001
+   - **Lambda Local**: http://localhost:3000 (if using serverless)
+
+## 🧪 Testing
+
+Run tests to ensure everything works:
+
 ```bash
-cd backend/dotnet-api
-dotnet run  # http://localhost:5002/swagger
+# Test everything
+npm run test:all
+
+# Test individual components
+npm run test:frontend    # React tests
+npm run test:backend     # .NET tests  
+npm run test:search      # Node.js tests
 ```
 
-### Backend (Node.js Search)
-```bash
-cd backend/nodejs-search
-npm install
-npm start  # http://localhost:3001
-```
+## 🌐 Deployment Options
 
-### Serverless Local Testing
-```bash
-cd backend/serverless
-sam local start-api  # http://localhost:3000
-```
+### Option 1: Serverless ($1-5/month)
+- **Best for**: New projects, variable traffic
+- **Stack**: AWS Lambda + API Gateway + DynamoDB + S3
+- **Cost**: Pay per use, scales to zero
+- **Setup**: `npm run setup-deployment` → Choose option 1
 
-## 🔄 Development Workflow
+### Option 2: ECS Containers ($30-35/month)
+- **Best for**: Production apps, consistent traffic
+- **Stack**: ECS Fargate + ALB + S3 + CloudFront
+- **Cost**: Always running containers
+- **Setup**: `npm run setup-deployment` → Choose option 2
 
-1. **Make changes** to frontend or backend code
-2. **Push to main branch**
-3. **Automatic deployment** triggers
-4. **Monitor** in GitHub Actions
-5. **Test** deployed application
+### Deployment Steps
+1. **Choose strategy**: `npm run setup-deployment`
+2. **Set up AWS credentials** in GitHub Secrets
+3. **Push to GitHub**: Automatic deployment!
 
-## 📊 Monitoring & Costs
-
-### Serverless Monitoring
-```bash
-# Check Lambda logs
-aws logs tail /aws/lambda/serverless-shopping-cart-CategoriesFunction --follow
-
-# Monitor costs
-aws ce get-cost-and-usage --time-period Start=2025-07-01,End=2025-07-31 --granularity MONTHLY --metrics UnblendedCost
-```
-
-### ECS Monitoring
-```bash
-# Check service status
-aws ecs describe-services --cluster shopping-cart-system-cluster --services shopping-cart-system-dotnet-api
-
-# View logs
-aws logs tail /ecs/shopping-cart-system/dotnet-api --follow
-```
-
-## 🛠️ Troubleshooting
+## 🔍 Troubleshooting
 
 ### Common Issues
-1. **AWS Permissions**: Ensure your AWS user has CloudFormation, ECS, Lambda, S3, and IAM permissions
-2. **GitHub Secrets**: Verify AWS credentials are correctly set in GitHub
-3. **Build Failures**: Check GitHub Actions logs for specific error messages
 
-### Useful Commands
+**"Command not found" errors**:
 ```bash
-# Manual deployment (if needed)
-cd infrastructure
-./deploy-everything.sh
+# Check what's missing
+npm run verify
 
-# Clean up resources
-./cleanup-aws.sh
+# Install missing tools:
+# - Node.js: https://nodejs.org/
+# - .NET: https://dotnet.microsoft.com/download
+# - Git: https://git-scm.com/
 ```
 
-## 🔧 Configuration
-
-### Environment Variables (Frontend)
-- `REACT_APP_API_BASE_URL`: Backend API URL
-- `REACT_APP_ORDERS_API_BASE_URL`: Orders API URL
-
-### Environment Variables (Backend)
-- `ASPNETCORE_ENVIRONMENT`: .NET environment
-- `NODE_ENV`: Node.js environment
-- AWS Lambda automatically sets DynamoDB table names
-
-## 🚢 Deployment Details
-
-### Serverless Deployment Includes:
-- API Gateway with CORS
-- Lambda functions for all APIs
-- DynamoDB tables
-- S3 bucket for React app
-- Automatic database seeding
-
-### ECS Deployment Includes:
-- VPC with public subnets
-- Application Load Balancer
-- ECS cluster with Fargate
-- ECR repositories
-- S3 + CloudFront for React app
-
-## 📈 Scaling
-
-### Serverless Auto-scaling:
-- Lambda: Automatic (1000 concurrent by default)
-- DynamoDB: On-demand billing scales automatically
-- API Gateway: Automatic
-
-### ECS Scaling:
-```yaml
-# Add to ecs-services.yaml
-AutoScalingTarget:
-  Type: AWS::ApplicationAutoScaling::ScalableTarget
-  Properties:
-    MinCapacity: 1
-    MaxCapacity: 10
+**Port already in use**:
+```bash
+# Find what's using the port
+netstat -tln | grep :3000
+# Kill the process or use different port
 ```
 
-## 🔒 Security
+**Dependencies fail to install**:
+```bash
+# Clear cache and retry
+npm cache clean --force
+cd frontend && npm install
+cd ../backend/nodejs-search && npm install
+```
 
-### Best Practices Implemented:
-- IAM roles with least privilege
-- VPC security groups
-- HTTPS redirects in CloudFront
-- Non-root containers
-- Environment-based configuration
+**Build errors**:
+```bash
+# For .NET issues
+cd backend/dotnet-api
+dotnet clean
+dotnet restore
+dotnet build
+```
+
+### Getting Help
+
+1. **Run verification**: `npm run verify`
+2. **Check component logs** in their respective terminals
+3. **Review error messages** carefully
+4. **Ensure all prerequisites** are installed
+
+## 📊 Component Status
+
+Use `npm run verify` to see:
+
+- ✅ Components found and configured
+- ❌ Missing components  
+- ⚠️ Components with issues
+- 🛠️ Prerequisites status
+- 🌐 Port availability
+
+## 💡 Development Tips
+
+### Frontend (React)
+- Hot reload enabled - changes appear instantly
+- Check browser console for errors
+- Use Redux DevTools browser extension
+- API calls go to backend automatically
+
+### Backend (.NET API)
+- Swagger UI available at `/swagger`
+- Auto-restart on file changes
+- Check terminal for compilation errors
+- Entity Framework for database
+
+### Search API (Node.js)
+- RESTful API endpoints
+- Express.js framework
+- JSON responses
+- CORS enabled for frontend
+
+### Serverless (AWS Lambda)
+- SAM local for testing
+- Multiple Lambda functions
+- DynamoDB for data storage
+- API Gateway for routing
+
+## 🎯 Next Steps
+
+1. **Verify setup**: `npm run verify`
+2. **Install dependencies**: `npm run setup-local` 
+3. **Start development**: Use `npm run dev:*` commands
+4. **Add features**: Develop in your components
+5. **Test changes**: `npm run test:all`
+6. **Deploy**: Set up automated deployment
+
+## 📚 Learning Resources
+
+- **React**: [Official Docs](https://reactjs.org/docs)
+- **.NET**: [Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/)
+- **Node.js**: [Official Docs](https://nodejs.org/en/docs/)
+- **AWS Lambda**: [AWS Docs](https://docs.aws.amazon.com/lambda/)
+- **AWS SAM**: [SAM Developer Guide](https://docs.aws.amazon.com/serverless-application-model/)
 
 ---
 
-**💡 Tips:**
-- Use serverless for new projects or low traffic
-- Use ECS for production apps with consistent load
-- Monitor costs regularly in AWS Console
-- Set up CloudWatch alarms for important metrics
+**Ready to code? Start with `npm run verify` to check your setup!** 🚀

@@ -33,8 +33,8 @@ cat > src/services/api.ts << 'APIEOF'
 import axios from 'axios';
 import { Category, Product, CreateProductRequest, Order, CreateOrderRequest } from '../types';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5002/api';
-const ORDERS_API_BASE_URL = process.env.REACT_APP_ORDERS_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5002';
+const ORDERS_API_BASE_URL = process.env.REACT_APP_ORDERS_API_BASE_URL || 'http://localhost:3000';
 
 // Category API
 export const categoryAPI = {

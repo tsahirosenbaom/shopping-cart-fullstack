@@ -1,0 +1,22 @@
+{
+  "name": "shopping-cart-fullstack",
+  "version": "1.0.0",
+  "description": "Full-stack shopping cart with React and AWS deployment",
+  "scripts": {
+    "verify": "scripts/verify-setup.sh",
+    "setup-local": "scripts/setup-local-dev.sh",
+    "setup-deployment": "scripts/choose-deployment.sh",
+    "dev:frontend": "scripts/start-frontend.sh",
+    "dev:backend": "scripts/start-backend.sh", 
+    "dev:search": "scripts/start-search.sh",
+    "dev:serverless": "cd backend/serverless && sam local start-api",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend/dotnet-api && dotnet build",
+    "test:all": "scripts/test-all.sh",
+    "test:frontend": "cd frontend && npm test -- --watchAll=false",
+    "test:backend": "cd backend/dotnet-api && dotnet test",
+    "test:search": "cd backend/nodejs-search && npm test"
+  },
+  "keywords": ["shopping-cart", "react", "dotnet", "nodejs", "aws", "serverless", "ecs"],
+  "license": "MIT"
+}
