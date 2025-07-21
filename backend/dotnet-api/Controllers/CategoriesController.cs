@@ -11,6 +11,8 @@ namespace ProductApi.Controllers
     {
         private readonly ApplicationDbContext _context;
 
+
+        //
         public CategoriesController(ApplicationDbContext context)
         {
             _context = context;
