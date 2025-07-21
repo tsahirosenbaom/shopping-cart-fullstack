@@ -1,0 +1,227 @@
+<svg width="1200" height="1400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="awsOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF9900"/>
+      <stop offset="100%" style="stop-color:#FFB84D"/>
+    </linearGradient>
+    
+    <linearGradient id="awsBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A90E2"/>
+      <stop offset="100%" style="stop-color:#7BB3F0"/>
+    </linearGradient>
+    
+    <linearGradient id="dotnetPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#512BD4"/>
+      <stop offset="100%" style="stop-color:#7B68EE"/>
+    </linearGradient>
+    
+    <linearGradient id="nodeGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#339933"/>
+      <stop offset="100%" style="stop-color:#66BB33"/>
+    </linearGradient>
+    
+    <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+    
+    <!-- Arrow marker -->
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+      </marker>
+    </defs>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="1400" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <rect x="0" y="0" width="1200" height="80" fill="url(#headerGradient)"/>
+  <text x="600" y="50" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">Shopping Cart - Complete Architecture Options</text>
+  
+  <!-- Shared Frontend Layer -->
+  <text x="600" y="120" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="18" font-weight="bold">Shared Frontend Layer</text>
+  
+  <!-- Internet Users -->
+  <rect x="400" y="140" width="400" height="50" rx="8" fill="url(#headerGradient)" stroke="#5a6fd8" stroke-width="2"/>
+  <text x="600" y="170" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🌍 Internet Users</text>
+  
+  <!-- CloudFront -->
+  <rect x="400" y="220" width="400" height="50" rx="8" fill="url(#awsOrange)" stroke="#FF9900" stroke-width="2"/>
+  <text x="600" y="250" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🌐 CloudFront CDN</text>
+  
+  <!-- React Frontend -->
+  <rect x="400" y="300" width="400" height="50" rx="8" fill="url(#awsOrange)" stroke="#FF9900" stroke-width="2"/>
+  <text x="600" y="330" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">📱 React App (Amplify/S3)</text>
+  
+  <!-- Arrows -->
+  <line x1="600" y1="190" x2="600" y2="220" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="600" y1="270" x2="600" y2="300" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Split Arrow -->
+  <line x1="600" y1="350" x2="600" y2="380" stroke="#333" stroke-width="3"/>
+  <line x1="600" y1="380" x2="300" y2="420" stroke="#333" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <line x1="600" y1="380" x2="900" y2="420" stroke="#333" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <!-- Option Labels -->
+  <text x="150" y="410" fill="#FF9900" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Option A: Serverless</text>
+  <text x="900" y="410" fill="#512BD4" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Option B: Containerized</text>
+  
+  <!-- SERVERLESS SIDE (LEFT) -->
+  <!-- API Gateway -->
+  <rect x="50" y="440" width="500" height="50" rx="8" fill="url(#awsOrange)" stroke="#FF9900" stroke-width="2"/>
+  <text x="300" y="470" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🔌 API Gateway (Serverless)</text>
+  
+  <!-- Lambda Functions Row -->
+  <text x="300" y="520" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Lambda Functions</text>
+  
+  <!-- Lambda 1 -->
+  <rect x="50" y="530" width="80" height="60" rx="6" fill="url(#awsOrange)" stroke="#FF9900" stroke-width="1"/>
+  <text x="90" y="550" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10" font-weight="bold">⚡Categories</text>
+  <text x="90" y="565" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">128MB</text>
+  
+  <!-- Lambda 2 -->
+  <rect x="140" y="530" width="80" height="60" rx="6" fill="url(#awsOrange)" stroke="#FF9900" stroke-width="1"/>
+  <text x="180" y="550" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10" font-weight="bold">⚡Products</text>
+  <text x="180" y="565" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">256MB</text>
+  
+  <!-- Lambda 3 -->
+  <rect x="230" y="530" width="80" height="60" rx="6" fill="url(#awsOrange)" stroke="#FF9900" stroke-width="1"/>
+  <text x="270" y="550" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10" font-weight="bold">⚡Orders</text>
+  <text x="270" y="565" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">256MB</text>
+  
+  <!-- Lambda 4 -->
+  <rect x="320" y="530" width="80" height="60" rx="6" fill="url(#awsOrange)" stroke="#FF9900" stroke-width="1"/>
+  <text x="360" y="550" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10" font-weight="bold">⚡Health</text>
+  <text x="360" y="565" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">128MB</text>
+  
+  <!-- Lambda 5 -->
+  <rect x="410" y="530" width="80" height="60" rx="6" fill="url(#awsOrange)" stroke="#FF9900" stroke-width="1"/>
+  <text x="450" y="550" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10" font-weight="bold">⚡Search</text>
+  <text x="450" y="565" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">256MB</text>
+  
+  <!-- DynamoDB -->
+  <rect x="50" y="630" width="500" height="80" rx="8" fill="url(#awsBlue)" stroke="#4A90E2" stroke-width="2"/>
+  <text x="300" y="660" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🗄️ DynamoDB Tables</text>
+  <text x="150" y="680" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10">Categories</text>
+  <text x="300" y="680" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10">Products</text>
+  <text x="450" y="680" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="10">Orders</text>
+  <text x="300" y="695" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9">(Pay-per-request)</text>
+  
+  <!-- CONTAINERIZED SIDE (RIGHT) -->
+  <!-- Load Balancer -->
+  <rect x="650" y="440" width="500" height="50" rx="8" fill="url(#awsOrange)" stroke="#FF9900" stroke-width="2"/>
+  <text x="900" y="470" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">🔄 Application Load Balancer</text>
+  
+  <!-- ECS Cluster Header -->
+  <text x="900" y="520" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="12" font-weight="bold">ECS Fargate Cluster</text>
+  
+  <!-- .NET API Container -->
+  <rect x="670" y="530" width="200" height="80" rx="8" fill="url(#dotnetPurple)" stroke="#512BD4" stroke-width="2"/>
+  <text x="770" y="550" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🔧 .NET 8 Web API</text>
+  <text x="770" y="565" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9">• ASP.NET Core</text>
+  <text x="770" y="577" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9">• Products CRUD</text>
+  <text x="770" y="589" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9">• Swagger UI</text>
+  <text x="770" y="601" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">Port: 5002 | 512MB</text>
+  
+  <!-- Node.js API Container -->
+  <rect x="890" y="530" width="200" height="80" rx="8" fill="url(#nodeGreen)" stroke="#339933" stroke-width="2"/>
+  <text x="990" y="550" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🔍 Node.js Search</text>
+  <text x="990" y="565" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9">• Express.js</text>
+  <text x="990" y="577" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9">• Orders API</text>
+  <text x="990" y="589" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9">• Advanced Search</text>
+  <text x="990" y="601" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">Port: 3001 | 256MB</text>
+  
+  <!-- Database Layer -->
+  <text x="900" y="650" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Database Layer</text>
+  
+  <!-- PostgreSQL -->
+  <rect x="670" y="660" width="200" height="60" rx="8" fill="url(#awsBlue)" stroke="#4A90E2" stroke-width="2"/>
+  <text x="770" y="680" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🐘 PostgreSQL RDS</text>
+  <text x="770" y="695" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9">Relational Database</text>
+  <text x="770" y="707" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">ACID • Backup • Multi-AZ</text>
+  
+  <!-- Elasticsearch -->
+  <rect x="890" y="660" width="200" height="60" rx="8" fill="#FFA500" stroke="#FF8C00" stroke-width="2"/>
+  <text x="990" y="680" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🔍 Elasticsearch</text>
+  <text x="990" y="695" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9">Advanced Search</text>
+  <text x="990" y="707" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8">Analytics • Aggregations</text>
+  
+  <!-- Connection Lines - Serverless -->
+  <line x1="300" y1="490" x2="300" y2="530" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="180" y1="590" x2="200" y2="630" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="270" y1="590" x2="300" y2="630" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="360" y1="590" x2="400" y2="630" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Connection Lines - Containerized -->
+  <line x1="900" y1="490" x2="900" y2="530" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="770" y1="610" x2="770" y2="660" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="990" y1="610" x2="990" y2="660" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Monitoring Layer -->
+  <rect x="50" y="760" width="500" height="50" rx="8" fill="#232F3E" stroke="#FF9900" stroke-width="2"/>
+  <text x="300" y="790" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">📊 CloudWatch + X-Ray</text>
+  
+  <rect x="650" y="760" width="500" height="50" rx="8" fill="#232F3E" stroke="#FF9900" stroke-width="2"/>
+  <text x="900" y="790" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">📊 CloudWatch + Application Insights</text>
+  
+  <!-- Monitoring Arrows -->
+  <line x1="300" y1="710" x2="300" y2="760" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="900" y1="720" x2="900" y2="760" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Comparison Table -->
+  <rect x="50" y="850" width="1100" height="200" rx="10" fill="white" stroke="#ddd" stroke-width="2"/>
+  <text x="600" y="880" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="16" font-weight="bold">📊 Architecture Comparison</text>
+  
+  <!-- Table Headers -->
+  <text x="100" y="910" fill="#333" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Feature</text>
+  <text x="400" y="910" fill="#FF9900" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Serverless (Lambda)</text>
+  <text x="800" y="910" fill="#512BD4" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Containerized (.NET + Node.js)</text>
+  
+  <!-- Table Rows -->
+  <text x="100" y="930" fill="#333" font-family="Arial, sans-serif" font-size="10">Cost</text>
+  <text x="400" y="930" fill="#333" font-family="Arial, sans-serif" font-size="10">$1-5/month</text>
+  <text x="800" y="930" fill="#333" font-family="Arial, sans-serif" font-size="10">$30-50/month</text>
+  
+  <text x="100" y="950" fill="#333" font-family="Arial, sans-serif" font-size="10">Scaling</text>
+  <text x="400" y="950" fill="#333" font-family="Arial, sans-serif" font-size="10">Auto (0-1000+)</text>
+  <text x="800" y="950" fill="#333" font-family="Arial, sans-serif" font-size="10">Manual/Auto (1-10+)</text>
+  
+  <text x="100" y="970" fill="#333" font-family="Arial, sans-serif" font-size="10">Maintenance</text>
+  <text x="400" y="970" fill="#333" font-family="Arial, sans-serif" font-size="10">Zero</text>
+  <text x="800" y="970" fill="#333" font-family="Arial, sans-serif" font-size="10">Moderate</text>
+  
+  <text x="100" y="990" fill="#333" font-family="Arial, sans-serif" font-size="10">Database</text>
+  <text x="400" y="990" fill="#333" font-family="Arial, sans-serif" font-size="10">DynamoDB (NoSQL)</text>
+  <text x="800" y="990" fill="#333" font-family="Arial, sans-serif" font-size="10">PostgreSQL + Elasticsearch</text>
+  
+  <text x="100" y="1010" fill="#333" font-family="Arial, sans-serif" font-size="10">Best For</text>
+  <text x="400" y="1010" fill="#333" font-family="Arial, sans-serif" font-size="10">Variable traffic, MVP</text>
+  <text x="800" y="1010" fill="#333" font-family="Arial, sans-serif" font-size="10">Enterprise, consistent load</text>
+  
+  <!-- Deployment Commands -->
+  <rect x="50" y="1100" width="1100" height="120" rx="10" fill="#f8f9fa" stroke="#ddd" stroke-width="1"/>
+  <text x="600" y="1130" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="16" font-weight="bold">🚀 Deployment Commands</text>
+  
+  <!-- Serverless Commands -->
+  <text x="100" y="1160" fill="#FF9900" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Serverless Deployment:</text>
+  <text x="100" y="1175" fill="#333" font-family="Monaco, monospace" font-size="10">cd backend/serverless</text>
+  <text x="100" y="1190" fill="#333" font-family="Monaco, monospace" font-size="10">sam deploy --stack-name shopping-cart</text>
+  
+  <!-- Container Commands -->
+  <text x="100" y="1210" fill="#512BD4" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Container Deployment:</text>
+  <text x="100" y="1225" fill="#333" font-family="Monaco, monospace" font-size="10">cd infrastructure</text>
+  <text x="100" y="1240" fill="#333" font-family="Monaco, monospace" font-size="10">./deploy-everything.sh</text>
+  
+  <!-- URLs -->
+  <text x="600" y="1280" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Both options include complete CI/CD pipelines with GitHub Actions</text>
+  
+  <!-- Tech Stack Icons -->
+  <text x="50" y="1320" fill="#333" font-family="Arial, sans-serif" font-size="12" font-weight="bold">🛠️ Technology Stack:</text>
+  <text x="50" y="1340" fill="#333" font-family="Arial, sans-serif" font-size="10">📱 React 18 + TypeScript + Redux • 🔧 .NET 8 + ASP.NET Core • 🟢 Node.js + Express • ☁️ AWS Services • 🔄 GitHub Actions</text>
+  
+  <!-- Footer -->
+  <text x="600" y="1380" text-anchor="middle" fill="#666" font-family="Arial, sans-serif" font-size="10">Built with ❤️ demonstrating modern DevOps practices with both serverless and traditional architectures</text>
+</svg>
