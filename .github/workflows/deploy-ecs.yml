@@ -8,6 +8,7 @@ on:
       - "backend/nodejs-search/**"
       - "frontend/**"
       - "infrastructure/**"
+  workflow_dispatch: # Allow manual triggering
 
 env:
   AWS_REGION: us-east-1
@@ -18,41 +19,85 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0"
+
       - name: Test .NET API
         run: |
           if ls backend/dotnet-api/*.csproj 1> /dev/null 2>&1; then
             cd backend/dotnet-api && dotnet test
+          else
+            echo "No .NET project found, skipping tests"
           fi
+
       - name: Test Node.js API
         run: |
           if [ -f "backend/nodejs-search/package.json" ]; then
             cd backend/nodejs-search && npm ci && npm test
+          else
+            echo "No Node.js project found, skipping tests"
           fi
+
       - name: Test React Frontend
         run: |
           if [ -f "frontend/package.json" ]; then
             cd frontend && npm ci && npm test -- --watchAll=false
+          else
+            echo "No React project found, skipping tests"
           fi
+
   deploy-ecs:
     needs: test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Debug deployment environment
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
+          echo ""
+          echo "Infrastructure directory contents:"
+          if [ -d "infrastructure" ]; then
+            ls -la infrastructure/
+          else
+            echo "Infrastructure directory not found!"
+          fi
+
+      - name: Make scripts executable
+        run: |
+          if [ -d "infrastructure" ]; then
+            cd infrastructure
+            chmod +x *.sh 2>/dev/null || echo "No shell scripts found to make executable"
+          fi
+
       - name: Deploy Infrastructure
         run: |
           if [ -f "infrastructure/deploy-everything.sh" ]; then
-            cd infrastructure && ./deploy-everything.sh
+            cd infrastructure
+            echo "🚀 Starting ECS deployment..."
+            ./deploy-everything.sh
+          elif [ -f "infrastructure/debug-deployment.sh" ]; then
+            cd infrastructure
+            echo "🔍 Running deployment debug script..."
+            ./debug-deployment.sh
+            echo "❌ Main deployment script not found. Please check the debug output above."
+            exit 1
           else
-            echo "Deployment script not found"
+            echo "❌ Neither deploy-everything.sh nor debug-deployment.sh found in infrastructure directory"
+            echo "Available files:"
+            ls -la infrastructure/ || echo "Infrastructure directory not accessible"
+            exit 1
           fi
