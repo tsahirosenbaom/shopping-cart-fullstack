@@ -1,0 +1,56 @@
+# Serverless Alternative using Lambda
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  # API Gateway
+  ShoppingCartApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+
+  # Lambda for Categories (replaces .NET API)
+  CategoriesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/categories/
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          DB_CONNECTION_STRING: !Ref DatabaseConnectionString
+      Events:
+        GetCategories:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/categories
+            Method: get
+
+  # Lambda for Orders (replaces Node.js API)
+  OrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/orders/
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Events:
+        CreateOrder:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/orders
+            Method: post
+        GetOrders:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/orders
+            Method: get
+
+# Cost: Only pay when functions are invoked
+# Free tier: 1M requests/month + 400,000 GB-seconds compute time

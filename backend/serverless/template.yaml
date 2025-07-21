@@ -1,0 +1,229 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Serverless Shopping Cart System'
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        CORS_ORIGIN: '*'
+        NODE_ENV: production
+
+Parameters:
+  Stage:
+    Type: String
+    Default: prod
+    Description: API Gateway stage name
+
+Resources:
+  # API Gateway
+  ShoppingCartApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+      GatewayResponses:
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        DEFAULT_5XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+
+  # DynamoDB Tables
+  CategoriesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'shopping-cart-categories-${Stage}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  ProductsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'shopping-cart-products-${Stage}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub 'shopping-cart-orders-${Stage}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  # Lambda Functions
+  CategoriesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/categories/
+      Handler: index.handler
+      Environment:
+        Variables:
+          CATEGORIES_TABLE: !Ref CategoriesTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CategoriesTable
+      Events:
+        GetCategories:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/categories
+            Method: get
+        OptionsCategories:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/categories
+            Method: options
+
+  ProductsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/products/
+      Handler: index.handler
+      Environment:
+        Variables:
+          PRODUCTS_TABLE: !Ref ProductsTable
+          CATEGORIES_TABLE: !Ref CategoriesTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref CategoriesTable
+      Events:
+        GetProducts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/products
+            Method: get
+        CreateProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/products
+            Method: post
+        SearchProducts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/products/search
+            Method: get
+        OptionsProducts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/products
+            Method: options
+
+  OrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/orders/
+      Handler: index.handler
+      Environment:
+        Variables:
+          ORDERS_TABLE: !Ref OrdersTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrdersTable
+      Events:
+        GetOrders:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/orders
+            Method: get
+        CreateOrder:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/orders
+            Method: post
+        GetOrderById:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/orders/{id}
+            Method: get
+        OptionsOrders:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /api/orders
+            Method: options
+
+  HealthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/health/
+      Handler: index.handler
+      Events:
+        Health:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ShoppingCartApi
+            Path: /health
+            Method: get
+
+  # Data Seeding Function (run once)
+  DataSeedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/seed/
+      Handler: index.handler
+      Timeout: 60
+      Environment:
+        Variables:
+          CATEGORIES_TABLE: !Ref CategoriesTable
+          PRODUCTS_TABLE: !Ref ProductsTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CategoriesTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+
+Outputs:
+  ShoppingCartApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ShoppingCartApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiUrl"
+      
+  CategoriesTable:
+    Description: "Categories DynamoDB Table"
+    Value: !Ref CategoriesTable
+    
+  ProductsTable:
+    Description: "Products DynamoDB Table"
+    Value: !Ref ProductsTable
+    
+  OrdersTable:
+    Description: "Orders DynamoDB Table"
+    Value: !Ref OrdersTable

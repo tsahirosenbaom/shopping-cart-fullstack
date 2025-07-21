@@ -1,0 +1,9 @@
+{
+  "name": "shopping-cart-products",
+  "version": "1.0.0",
+  "description": "Shopping Cart products Lambda function",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.1000.0"
+  }
+}

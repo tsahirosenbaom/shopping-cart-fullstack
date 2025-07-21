@@ -1,0 +1,39 @@
+# AWS App Runner - Managed Container Service
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  # App Runner service for .NET API
+  DotNetAppRunnerService:
+    Type: AWS::AppRunner::Service
+    Properties:
+      ServiceName: !Sub ${ProjectName}-dotnet-api
+      SourceConfiguration:
+        ImageRepository:
+          ImageIdentifier: !Ref DotNetImageURI
+          ImageConfiguration:
+            Port: '80'
+            RuntimeEnvironmentVariables:
+              - Name: ASPNETCORE_ENVIRONMENT
+                Value: Production
+          ImageRepositoryType: ECR
+        AutoDeploymentsEnabled: false
+      InstanceConfiguration:
+        Cpu: 0.25 vCPU
+        Memory: 0.5 GB
+      # Auto-scaling configuration
+      AutoScalingConfigurationArn: !Ref AppRunnerAutoScalingConfig
+
+  # Auto-scaling configuration with ability to scale to 0
+  AppRunnerAutoScalingConfig:
+    Type: AWS::AppRunner::AutoScalingConfiguration
+    Properties:
+      AutoScalingConfigurationName: !Sub ${ProjectName}-autoscaling
+      MinSize: 0  # Can scale to 0 when no traffic
+      MaxSize: 10
+      MaxConcurrency: 100
+
+# Benefits:
+# - Automatic scaling to 0 when no traffic
+# - Only pay for active request time
+# - Managed load balancing and SSL
+# - Built-in monitoring

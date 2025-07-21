@@ -1,0 +1,55 @@
+.App {
+  text-align: right;
+  direction: rtl;
+}
+
+/* Additional responsive styles */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 15px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .main-content {
+    gap: 20px;
+  }
+
+  .product-form,
+  .cart-content {
+    padding: 20px;
+  }
+
+  .form-title {
+    font-size: 1.3rem;
+  }
+
+  .cart-title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 20px 15px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .quantity-controls {
+    justify-content: center;
+  }
+
+  .cart-item-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cart-item-controls {
+    justify-content: center;
+  }
+}

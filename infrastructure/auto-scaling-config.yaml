@@ -1,0 +1,37 @@
+# Add to ecs-services.yaml for auto-scaling
+Resources:
+  # Auto Scaling Target for .NET API
+  DotNetScalingTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 10
+      MinCapacity: 0  # Can scale to 0 when no traffic
+      ResourceId: !Sub service/${ProjectName}-cluster/${ProjectName}-dotnet-api
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  # Auto Scaling Policy - Scale Up
+  DotNetScaleUpPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: DotNetScaleUpPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref DotNetScalingTarget
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ECSServiceAverageCPUUtilization
+        TargetValue: 50.0
+        ScaleOutCooldown: 300
+        ScaleInCooldown: 300
+
+  # Similar configuration for Node.js API
+  NodeJsScalingTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 10
+      MinCapacity: 0
+      ResourceId: !Sub service/${ProjectName}-cluster/${ProjectName}-nodejs-api
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs

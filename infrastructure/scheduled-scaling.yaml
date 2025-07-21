@@ -1,0 +1,25 @@
+# Scheduled Actions for Cost Savings
+Resources:
+  # Scale down at night (11 PM UTC = 2 AM Israel time)
+  ScaleDownSchedule:
+    Type: AWS::ApplicationAutoScaling::ScheduledAction
+    Properties:
+      ResourceId: !Sub service/${ProjectName}-cluster/${ProjectName}-dotnet-api
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+      Schedule: cron(0 23 * * ? *)  # 11 PM UTC daily
+      ScalableTargetAction:
+        MinCapacity: 0
+        MaxCapacity: 0
+
+  # Scale up in the morning (6 AM UTC = 9 AM Israel time)
+  ScaleUpSchedule:
+    Type: AWS::ApplicationAutoScaling::ScheduledAction
+    Properties:
+      ResourceId: !Sub service/${ProjectName}-cluster/${ProjectName}-dotnet-api
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+      Schedule: cron(0 6 * * ? *)   # 6 AM UTC daily
+      ScalableTargetAction:
+        MinCapacity: 1
+        MaxCapacity: 10
