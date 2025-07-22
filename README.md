@@ -6,7 +6,7 @@ A complete serverless e-commerce shopping cart system with automated DevOps pipe
 
 This project demonstrates a **production-ready serverless architecture** with full DevOps automation, featuring React frontend, Node.js Lambda backend, and complete CI/CD pipeline.
 
-**Live Demo**: [Your deployed URL here]
+**Live Demo**: [\[Your deployed URL here\]](http://serverless-shopping-cart-frontend-1753110732.s3-website-us-east-1.amazonaws.com/)
 **Repository**: https://github.com/tsahirosenbaom/shopping-cart-fullstack
 
 ## 📊 CI/CD Pipeline Architecture

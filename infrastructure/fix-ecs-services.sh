@@ -1,3 +1,13 @@
+#!/bin/bash
+
+echo "🔧 Creating correct ecs-services.yaml file"
+echo "==========================================="
+
+# Remove any existing file
+rm -f ecs-services.yaml
+
+# Create the file with proper formatting
+cat > ecs-services.yaml << 'YAML_EOF'
 AWSTemplateFormatVersion: 2010-09-09
 Description: ECS Services for Shopping Cart System
 
@@ -143,3 +153,20 @@ Outputs:
   NodeJsServiceName:
     Description: Node.js API Service Name
     Value: !Ref NodeJsService
+YAML_EOF
+
+echo "✅ Created ecs-services.yaml"
+echo "📋 Validating YAML syntax..."
+
+# Validate the template
+aws cloudformation validate-template \
+    --template-body file://ecs-services.yaml \
+    --region us-east-1 >/dev/null
+
+if [ $? -eq 0 ]; then
+    echo "✅ YAML syntax is valid"
+    echo "🚀 Ready to deploy!"
+else
+    echo "❌ YAML validation failed"
+    exit 1
+fi
