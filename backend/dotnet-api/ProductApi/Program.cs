@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ProductApi.Data;
-using ProductApi.Models;
-using System.Text.Json.Serialization;
+using Amazon.SecretsManager;
+using Amazon.SecretsManager.Model;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,13 +26,45 @@ builder.Services.AddCors(options =>
         {
             policy.AllowAnyOrigin()
                   .AllowAnyHeader()
+                  .AllowAnyMethod()
                   .AllowAnyMethod();
         });
 });
 
-// Add Entity Framework with SQLite
+// Get connection string from AWS Secrets Manager or appsettings
+string connectionString;
+if (builder.Environment.IsProduction())
+{
+    var secretsClient = new AmazonSecretsManagerClient();
+    var secretName = Environment.GetEnvironmentVariable("SECRET_NAME") ?? "fullstack-app/database/credentials";
+
+    try
+    {
+        var request = new GetSecretValueRequest
+        {
+            SecretId = secretName
+        };
+        var response = await secretsClient.GetSecretValueAsync(request);
+        var secret = JsonSerializer.Deserialize<Dictionary<string, string>>(response.SecretString);
+
+        connectionString = $"Server={secret["host"]},{secret["port"]};Database={secret["dbname"]};User Id={secret["username"]};Password={secret["password"]};TrustServerCertificate=true;Encrypt=true;";
+    }
+    catch
+    {
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                          throw new InvalidOperationException("Connection string not found.");
+    }
+}
+else
+{
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                      throw new InvalidOperationException("Connection string not found.");
+}
+
+// Add Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite("Data Source=products.db"));
+    options.UseSqlServer(connectionString));
+
 
 var app = builder.Build();
 
@@ -46,14 +79,12 @@ app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();
 
-// Initialize database
+// Auto-migrate database
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    
     // Create database
     context.Database.EnsureCreated();
-    
     // Seed data if empty
     if (!context.Categories.Any())
     {
@@ -63,14 +94,14 @@ using (var scope = app.Services.CreateScope())
             new Category { Name = "Clothing", Description = "Apparel and accessories" },
             new Category { Name = "Books", Description = "Books and educational materials" }
         };
-        
+
         context.Categories.AddRange(categories);
         context.SaveChanges();
-        
+
         var electronics = context.Categories.First(c => c.Name == "Electronics");
         var clothing = context.Categories.First(c => c.Name == "Clothing");
         var books = context.Categories.First(c => c.Name == "Books");
-        
+
         var products = new List<Product>
         {
             new Product { Name = "Gaming Laptop", Description = "High-performance gaming laptop", Price = 1299.99m, Stock = 25, CategoryId = electronics.Id },
@@ -78,16 +109,12 @@ using (var scope = app.Services.CreateScope())
             new Product { Name = "Cotton T-Shirt", Description = "Comfortable cotton t-shirt", Price = 19.99m, Stock = 50, CategoryId = clothing.Id },
             new Product { Name = "Programming Book", Description = "Learn programming fundamentals", Price = 39.99m, Stock = 30, CategoryId = books.Id }
         };
-        
+
         context.Products.AddRange(products);
         context.SaveChanges();
-        
+
         Console.WriteLine("✅ Database seeded with sample data");
     }
 }
-
-Console.WriteLine("🚀 API is running at http://localhost:5002");
-Console.WriteLine("📚 Swagger docs at http://localhost:5002/swagger");
-Console.WriteLine("🔧 JSON serialization cycles handled");
 
 app.Run();
