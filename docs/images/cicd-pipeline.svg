@@ -1,0 +1,194 @@
+<svg viewBox="0 0 1400 1000" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="serverlessPath" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f39c12;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#e67e22;stop-opacity:0.15" />
+    </linearGradient>
+    <linearGradient id="ecsPath" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#27ae60;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#2ecc71;stop-opacity:0.15" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50"/>
+    </marker>
+  </defs>
+  
+  <rect width="1400" height="1000" fill="url(#bgGradient)"/>
+  
+  <!-- Title -->
+  <text x="700" y="40" text-anchor="middle" fill="white" font-size="32" font-weight="bold">Shopping Cart CI/CD Pipeline Architecture</text>
+  
+  <!-- Stage 1: Source Code Trigger -->
+  <rect x="50" y="80" width="1300" height="120" fill="rgba(255,255,255,0.95)" rx="15" stroke="#e74c3c" stroke-width="4" filter="url(#shadow)"/>
+  <circle cx="90" cy="140" r="25" fill="#e74c3c"/>
+  <text x="90" y="148" text-anchor="middle" fill="white" font-size="18" font-weight="bold">1</text>
+  <text x="130" y="105" fill="#2c3e50" font-size="22" font-weight="bold">Source Code Trigger</text>
+  
+  <!-- Git Push -->
+  <rect x="130" y="120" width="200" height="50" fill="white" rx="8" stroke="#34495e" stroke-width="2"/>
+  <text x="230" y="140" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Git Push to Main Branch</text>
+  <text x="230" y="155" text-anchor="middle" fill="#7f8c8d" font-size="11">Triggers GitHub Actions workflows</text>
+  
+  <!-- Path-Based Routing -->
+  <rect x="370" y="120" width="300" height="50" fill="white" rx="8" stroke="#34495e" stroke-width="2"/>
+  <text x="520" y="135" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Path-Based Routing</text>
+  <text x="520" y="150" text-anchor="middle" fill="#f39c12" font-size="10">Serverless: backend/serverless/**, frontend/**</text>
+  <text x="520" y="162" text-anchor="middle" fill="#27ae60" font-size="10">ECS: backend/dotnet-api/**, infrastructure/**</text>
+  
+  <!-- Stage 2: Testing -->
+  <rect x="50" y="220" width="1300" height="120" fill="rgba(255,255,255,0.95)" rx="15" stroke="#f39c12" stroke-width="4" filter="url(#shadow)"/>
+  <circle cx="90" cy="280" r="25" fill="#f39c12"/>
+  <text x="90" y="288" text-anchor="middle" fill="white" font-size="18" font-weight="bold">2</text>
+  <text x="130" y="245" fill="#2c3e50" font-size="22" font-weight="bold">Automated Testing</text>
+  
+  <!-- React Frontend Tests -->
+  <rect x="130" y="260" width="250" height="60" fill="white" rx="8" stroke="#34495e" stroke-width="2"/>
+  <text x="255" y="280" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">React Frontend Tests</text>
+  <text x="255" y="295" text-anchor="middle" fill="#7f8c8d" font-size="10">npm ci and npm run build</text>
+  <text x="255" y="305" text-anchor="middle" fill="#7f8c8d" font-size="10">Jest tests (ES modules handled)</text>
+  <text x="255" y="315" text-anchor="middle" fill="#7f8c8d" font-size="10">Build verification</text>
+  
+  <!-- Backend API Tests -->
+  <rect x="420" y="260" width="250" height="60" fill="white" rx="8" stroke="#34495e" stroke-width="2"/>
+  <text x="545" y="280" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Backend API Tests</text>
+  <text x="545" y="295" text-anchor="middle" fill="#7f8c8d" font-size="10">.NET API: dotnet test</text>
+  <text x="545" y="305" text-anchor="middle" fill="#7f8c8d" font-size="10">Node.js API: npm test</text>
+  <text x="545" y="315" text-anchor="middle" fill="#7f8c8d" font-size="10">Lambda functions: individual testing</text>
+  
+  <!-- Arrows between stages -->
+  <path d="M700 200 L700 210" stroke="#2c3e50" stroke-width="4" marker-end="url(#arrowhead)"/>
+  <path d="M700 340 L700 350" stroke="#2c3e50" stroke-width="4" marker-end="url(#arrowhead)"/>
+  
+  <!-- Stage 3: Parallel Deployment Paths -->
+  <!-- Serverless Path -->
+  <rect x="50" y="360" width="630" height="320" fill="url(#serverlessPath)" rx="15" stroke="#f39c12" stroke-width="4" filter="url(#shadow)"/>
+  <text x="365" y="385" text-anchor="middle" fill="#2c3e50" font-size="20" font-weight="bold">Serverless Deployment Path</text>
+  <rect x="540" y="365" width="120" height="25" fill="#27ae60" rx="12"/>
+  <text x="600" y="380" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Working</text>
+  
+  <!-- Build & Deploy Backend -->
+  <rect x="80" y="410" width="250" height="90" fill="white" rx="8" stroke="#f39c12" stroke-width="2"/>
+  <text x="205" y="430" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Build and Deploy Backend</text>
+  <text x="205" y="445" text-anchor="middle" fill="#7f8c8d" font-size="11">AWS SAM build</text>
+  <text x="205" y="457" text-anchor="middle" fill="#7f8c8d" font-size="11">Deploy Lambda functions</text>
+  <text x="205" y="469" text-anchor="middle" fill="#7f8c8d" font-size="11">Create API Gateway endpoints</text>
+  <text x="205" y="481" text-anchor="middle" fill="#7f8c8d" font-size="11">Output API URL</text>
+  <text x="205" y="493" text-anchor="middle" fill="#f39c12" font-size="10" font-weight="bold">3-5 minutes</text>
+  
+  <!-- Deploy React Frontend -->
+  <rect x="350" y="410" width="280" height="90" fill="white" rx="8" stroke="#f39c12" stroke-width="2"/>
+  <text x="490" y="430" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Deploy React Frontend</text>
+  <text x="490" y="445" text-anchor="middle" fill="#7f8c8d" font-size="11">Set REACT_APP_API_BASE_URL from backend</text>
+  <text x="490" y="457" text-anchor="middle" fill="#7f8c8d" font-size="11">npm run build</text>
+  <text x="490" y="469" text-anchor="middle" fill="#7f8c8d" font-size="11">Deploy to S3 with website hosting</text>
+  <text x="490" y="481" text-anchor="middle" fill="#7f8c8d" font-size="11">Configure CloudFront distribution</text>
+  <text x="490" y="493" text-anchor="middle" fill="#f39c12" font-size="10" font-weight="bold">2-3 minutes</text>
+  
+  <!-- Serverless Tech Stack -->
+  <rect x="80" y="520" width="550" height="50" fill="rgba(243, 156, 18, 0.1)" rx="8" stroke="#f39c12" stroke-width="1"/>
+  <text x="355" y="540" text-anchor="middle" fill="#2c3e50" font-size="12" font-weight="bold">Technologies: AWS Lambda, API Gateway, DynamoDB, S3, CloudFront</text>
+  <text x="355" y="555" text-anchor="middle" fill="#7f8c8d" font-size="11">Cost: $1-5/month - Auto-scaling: 0-1000+ - Maintenance: Zero</text>
+  
+  <!-- Serverless Workflow -->
+  <rect x="80" y="590" width="550" height="70" fill="white" rx="8" stroke="#f39c12" stroke-width="2"/>
+  <text x="355" y="610" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Workflow: deploy-serverless.yml</text>
+  <text x="355" y="625" text-anchor="middle" fill="#7f8c8d" font-size="11">Trigger: Push to main with changes in backend/serverless/** or frontend/**</text>
+  <text x="355" y="640" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">Total Duration: 5-8 minutes</text>
+  <text x="355" y="655" text-anchor="middle" fill="#2c3e50" font-size="10">sam deploy --stack-name shopping-cart</text>
+  
+  <!-- ECS Path -->
+  <rect x="720" y="360" width="630" height="480" fill="url(#ecsPath)" rx="15" stroke="#27ae60" stroke-width="4" filter="url(#shadow)"/>
+  <text x="1035" y="385" text-anchor="middle" fill="#2c3e50" font-size="20" font-weight="bold">ECS Containerized Path</text>
+  <rect x="1210" y="365" width="120" height="25" fill="#27ae60" rx="12"/>
+  <text x="1270" y="380" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Working</text>
+  
+  <!-- Container Build & Push -->
+  <rect x="750" y="410" width="250" height="80" fill="white" rx="8" stroke="#27ae60" stroke-width="2"/>
+  <text x="875" y="430" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Container Build and Push</text>
+  <text x="875" y="445" text-anchor="middle" fill="#7f8c8d" font-size="11">Setup ECR repositories</text>
+  <text x="875" y="457" text-anchor="middle" fill="#7f8c8d" font-size="11">Build Docker images (.NET, Node.js)</text>
+  <text x="875" y="469" text-anchor="middle" fill="#7f8c8d" font-size="11">Push to Amazon ECR</text>
+  <text x="875" y="481" text-anchor="middle" fill="#27ae60" font-size="10" font-weight="bold">5-8 minutes</text>
+  
+  <!-- Infrastructure Deployment -->
+  <rect x="1020" y="410" width="280" height="80" fill="white" rx="8" stroke="#27ae60" stroke-width="2"/>
+  <text x="1160" y="430" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Infrastructure Deployment</text>
+  <text x="1160" y="445" text-anchor="middle" fill="#7f8c8d" font-size="11">Deploy VPC, subnets, security groups</text>
+  <text x="1160" y="457" text-anchor="middle" fill="#7f8c8d" font-size="11">Create Application Load Balancer</text>
+  <text x="1160" y="469" text-anchor="middle" fill="#7f8c8d" font-size="11">Setup ECS Fargate cluster</text>
+  <text x="1160" y="481" text-anchor="middle" fill="#27ae60" font-size="10" font-weight="bold">8-12 minutes</text>
+  
+  <!-- Service Deployment -->
+  <rect x="750" y="510" width="250" height="80" fill="white" rx="8" stroke="#27ae60" stroke-width="2"/>
+  <text x="875" y="530" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Service Deployment</text>
+  <text x="875" y="545" text-anchor="middle" fill="#7f8c8d" font-size="11">Register ECS task definitions</text>
+  <text x="875" y="557" text-anchor="middle" fill="#7f8c8d" font-size="11">Create ECS services</text>
+  <text x="875" y="569" text-anchor="middle" fill="#7f8c8d" font-size="11">Configure health checks</text>
+  <text x="875" y="581" text-anchor="middle" fill="#27ae60" font-size="10" font-weight="bold">5-8 minutes</text>
+  
+  <!-- Frontend Integration -->
+  <rect x="1020" y="510" width="280" height="80" fill="white" rx="8" stroke="#27ae60" stroke-width="2"/>
+  <text x="1160" y="530" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Frontend Integration</text>
+  <text x="1160" y="545" text-anchor="middle" fill="#7f8c8d" font-size="11">Get ALB DNS from infrastructure</text>
+  <text x="1160" y="557" text-anchor="middle" fill="#7f8c8d" font-size="11">Update React app environment</text>
+  <text x="1160" y="569" text-anchor="middle" fill="#7f8c8d" font-size="11">Rebuild and deploy to S3</text>
+  <text x="1160" y="581" text-anchor="middle" fill="#27ae60" font-size="10" font-weight="bold">2-3 minutes</text>
+  
+  <!-- ECS Tech Stack -->
+  <rect x="750" y="610" width="550" height="50" fill="rgba(39, 174, 96, 0.1)" rx="8" stroke="#27ae60" stroke-width="1"/>
+  <text x="1025" y="630" text-anchor="middle" fill="#2c3e50" font-size="12" font-weight="bold">Technologies: ECS Fargate, ALB, ECR, PostgreSQL, Elasticsearch, Docker</text>
+  <text x="1025" y="645" text-anchor="middle" fill="#7f8c8d" font-size="11">Cost: $30-50/month - Auto-scaling: 1-10+ - Maintenance: Moderate</text>
+  
+  <!-- ECS Workflow -->
+  <rect x="750" y="680" width="550" height="70" fill="white" rx="8" stroke="#27ae60" stroke-width="2"/>
+  <text x="1025" y="700" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Workflow: deploy-ecs.yml</text>
+  <text x="1025" y="715" text-anchor="middle" fill="#7f8c8d" font-size="11">Trigger: Push to main with changes in backend/dotnet-api/** or infrastructure/**</text>
+  <text x="1025" y="730" text-anchor="middle" fill="#27ae60" font-size="12" font-weight="bold">Total Duration: 15-25 minutes</text>
+  <text x="1025" y="745" text-anchor="middle" fill="#2c3e50" font-size="10">cd infrastructure and ./deploy-everything.sh</text>
+  
+  <!-- Health Check Status -->
+  <rect x="750" y="770" width="550" height="50" fill="rgba(39, 174, 96, 0.2)" rx="8" stroke="#27ae60" stroke-width="2"/>
+  <text x="1025" y="790" text-anchor="middle" fill="#2c3e50" font-size="14" font-weight="bold">Current Status: All Health Checks Passing</text>
+  <text x="1025" y="805" text-anchor="middle" fill="#27ae60" font-size="12">ALB: Healthy - Services: Running - API: Responding - React: Connected</text>
+  
+  <!-- Comparison Table -->
+  <rect x="50" y="870" width="1300" height="110" fill="rgba(255,255,255,0.95)" rx="15" stroke="#3498db" stroke-width="3" filter="url(#shadow)"/>
+  <text x="700" y="895" text-anchor="middle" fill="#2c3e50" font-size="20" font-weight="bold">Pipeline Comparison</text>
+  
+  <!-- Table Headers -->
+  <text x="80" y="920" fill="#2c3e50" font-size="14" font-weight="bold">Feature</text>
+  <text x="250" y="920" fill="#f39c12" font-size="14" font-weight="bold">Serverless (Lambda)</text>
+  <text x="600" y="920" fill="#27ae60" font-size="14" font-weight="bold">Containerized (ECS)</text>
+  
+  <!-- Table Rows -->
+  <text x="80" y="940" fill="#7f8c8d" font-size="12">Status</text>
+  <text x="250" y="940" fill="#27ae60" font-size="12" font-weight="bold">Fully Working</text>
+  <text x="600" y="940" fill="#27ae60" font-size="12" font-weight="bold">Fully Working</text>
+  
+  <text x="80" y="955" fill="#7f8c8d" font-size="12">Trigger Paths</text>
+  <text x="250" y="955" fill="#7f8c8d" font-size="11">backend/serverless/**</text>
+  <text x="600" y="955" fill="#7f8c8d" font-size="11">backend/dotnet-api/** + infrastructure/**</text>
+  
+  <text x="80" y="970" fill="#7f8c8d" font-size="12">Deployment Time</text>
+  <text x="250" y="970" fill="#f39c12" font-size="12" font-weight="bold">5-8 minutes</text>
+  <text x="600" y="970" fill="#27ae60" font-size="12" font-weight="bold">15-25 minutes</text>
+  
+  <!-- Connection arrows -->
+  <path d="M365 360 L365 200" stroke="#f39c12" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <path d="M1035 360 L1035 200" stroke="#27ae60" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <!-- Internal flow arrows -->
+  <path d="M330 455 L350 455" stroke="#f39c12" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M1000 450 L1020 450" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M1000 550 L1020 550" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M875 490 L875 510" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M1160 490 L1160 510" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+</svg>
