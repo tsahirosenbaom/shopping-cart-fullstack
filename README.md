@@ -27,7 +27,7 @@ This application demonstrates two complete deployment strategies:
 
 ## 🚀 Live Demo
 
-- **Serverless Demo**: [https://your-cloudfront-domain.com](https://your-cloudfront-domain.com)
+- **Serverless Demo**: http://serverless-shopping-cart-frontend-1753110732.s3-website-us-east-1.amazonaws.com/
 - **ECS Demo**: [https://your-ecs-cloudfront-domain.com](https://your-ecs-cloudfront-domain.com)
 - **API Documentation**: [http://your-alb-dns.amazonaws.com/swagger](http://your-alb-dns.amazonaws.com/swagger)
 
