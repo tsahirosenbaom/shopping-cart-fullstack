@@ -3,16 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: "Serverless Shopping Cart System"
 
 Globals:
-  Api:
-    Cors:
-      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
-      AllowHeaders: "'*'"
-      AllowOrigin: "'*'"
-    # Add HTTPS endpoint
-    EndpointConfiguration: EDGE
-    Domain:
-      DomainName: !Sub "${AWS::StackName}-api.yourdomain.com"
-      CertificateArn: !Ref ApiCertificate
   Function:
     Timeout: 30
     Runtime: nodejs18.x
