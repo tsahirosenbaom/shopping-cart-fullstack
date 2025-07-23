@@ -7,6 +7,7 @@ namespace ProductApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class ProductsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -40,7 +41,7 @@ namespace ProductApi.Controllers
         {
             product.CreatedAt = DateTime.UtcNow;
             product.UpdatedAt = DateTime.UtcNow;
-            
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
