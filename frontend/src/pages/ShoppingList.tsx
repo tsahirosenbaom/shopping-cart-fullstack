@@ -50,8 +50,6 @@ const ShoppingList: React.FC = () => {
       <div className="app-container">
         <div className="error">
           שגיאה בטעינת הנתונים: {error}
-          <br />
-          <small>וודא שה-API פועל על http://localhost:5002</small>
         </div>
       </div>
     );
