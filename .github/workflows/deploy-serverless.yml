@@ -2,13 +2,13 @@ name: Deploy Serverless Shopping Cart
 
 on:
   push:
-    branches: [main]
+    branches: [server_less]
     paths:
       - "backend/serverless/**"
       - "frontend/**"
       - ".github/workflows/deploy-serverless.yml"
   pull_request:
-    branches: [main]
+    branches: [server_less]
 
 env:
   AWS_REGION: us-east-1
