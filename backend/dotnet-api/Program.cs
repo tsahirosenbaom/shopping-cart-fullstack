@@ -17,7 +17,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp",
         policy =>
         {
-            policy.WithOrigins()
+            policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
@@ -30,7 +30,7 @@ if (builder.Environment.IsProduction())
 {
     var secretsClient = new AmazonSecretsManagerClient();
     var secretName = Environment.GetEnvironmentVariable("SECRET_NAME") ?? "fullstack-app/database/credentials";
-
+    
     try
     {
         var request = new GetSecretValueRequest
@@ -39,25 +39,24 @@ if (builder.Environment.IsProduction())
         };
         var response = await secretsClient.GetSecretValueAsync(request);
         var secret = JsonSerializer.Deserialize<Dictionary<string, string>>(response.SecretString);
-
+        
         connectionString = $"Server={secret["host"]},{secret["port"]};Database={secret["dbname"]};User Id={secret["username"]};Password={secret["password"]};TrustServerCertificate=true;Encrypt=true;";
     }
     catch
     {
-        connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
                           throw new InvalidOperationException("Connection string not found.");
     }
 }
 else
 {
-    connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
                       throw new InvalidOperationException("Connection string not found.");
 }
 
 // Add Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
-
 
 var app = builder.Build();
 

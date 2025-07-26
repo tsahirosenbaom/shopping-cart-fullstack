@@ -1,6 +1,6 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: "Serverless Shopping Cart System"
+Description: 'Serverless Shopping Cart System'
 
 Globals:
   Function:
@@ -8,7 +8,7 @@ Globals:
     Runtime: nodejs18.x
     Environment:
       Variables:
-        CORS_ORIGIN: "*"
+        CORS_ORIGIN: '*'
         NODE_ENV: production
 
 Parameters:
@@ -43,7 +43,7 @@ Resources:
   CategoriesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "shopping-cart-categories-${Stage}"
+      TableName: !Sub 'shopping-cart-categories-${Stage}'
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: id
@@ -55,7 +55,7 @@ Resources:
   ProductsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "shopping-cart-products-${Stage}"
+      TableName: !Sub 'shopping-cart-products-${Stage}'
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: id
@@ -67,7 +67,7 @@ Resources:
   OrdersTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "shopping-cart-orders-${Stage}"
+      TableName: !Sub 'shopping-cart-orders-${Stage}'
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: id
@@ -215,15 +215,15 @@ Outputs:
     Value: !Sub "https://${ShoppingCartApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/"
     Export:
       Name: !Sub "${AWS::StackName}-ApiUrl"
-
+      
   CategoriesTable:
     Description: "Categories DynamoDB Table"
     Value: !Ref CategoriesTable
-
+    
   ProductsTable:
     Description: "Products DynamoDB Table"
     Value: !Ref ProductsTable
-
+    
   OrdersTable:
     Description: "Orders DynamoDB Table"
     Value: !Ref OrdersTable

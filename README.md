@@ -1,557 +1,622 @@
-# 🛒 Shopping Cart Full-Stack Application
+# Shopping Cart Full Stack - DevOps Project 🛒
 
-A modern, cloud-native shopping cart application showcasing **dual deployment architectures** - both **Serverless** and **Containerized (ECS)** approaches with complete CI/CD pipelines.
+A complete serverless e-commerce shopping cart system with automated DevOps pipeline, built with modern technologies and deployed on AWS.
+
+## 🎯 Project Overview
+
+This project demonstrates a **production-ready serverless architecture** with full DevOps automation, featuring React frontend, Node.js Lambda backend, and complete CI/CD pipeline.
+
+**Live Demo**: [Your deployed URL here]
+**Repository**: https://github.com/tsahirosenbaom/shopping-cart-fullstack
+
+## 📊 CI/CD Pipeline Architecture
+
+```mermaid
+graph TB
+    subgraph "Development"
+        DEV[👨‍💻 Developer]
+        LOCAL[🖥️ Local Development]
+        DEV --> LOCAL
+    end
+
+    subgraph "Source Control"
+        GITHUB[📚 GitHub Repository<br/>shopping-cart-fullstack]
+        LOCAL --> |git push| GITHUB
+    end
+
+    subgraph "CI/CD Pipeline - GitHub Actions"
+        TRIGGER[🔄 Trigger on Push to Main]
+
+        subgraph "Build & Test Stage"
+            TEST_FRONTEND[🧪 Test React App<br/>- Unit Tests<br/>- Type Checking<br/>- Lint]
+            TEST_BACKEND[🧪 Test Lambda Functions<br/>- Unit Tests<br/>- Integration Tests]
+            BUILD[🏗️ Build Applications<br/>- React Build<br/>- Lambda Packaging]
+        end
+
+        subgraph "Deploy Stage"
+            DEPLOY_INFRA[☁️ Deploy Infrastructure<br/>- CloudFormation/SAM<br/>- Lambda Functions<br/>- API Gateway<br/>- DynamoDB]
+            DEPLOY_FRONTEND[🚀 Deploy Frontend<br/>- Build React App<br/>- Upload to S3/Amplify<br/>- Invalidate CDN]
+        end
+
+        subgraph "Post Deploy"
+            INTEGRATION_TEST[🔍 Integration Tests<br/>- API Health Checks<br/>- End-to-End Tests]
+            NOTIFY[📱 Notifications<br/>- Slack/Email<br/>- Status Updates]
+        end
+
+        GITHUB --> TRIGGER
+        TRIGGER --> TEST_FRONTEND
+        TRIGGER --> TEST_BACKEND
+        TEST_FRONTEND --> BUILD
+        TEST_BACKEND --> BUILD
+        BUILD --> DEPLOY_INFRA
+        DEPLOY_INFRA --> DEPLOY_FRONTEND
+        DEPLOY_FRONTEND --> INTEGRATION_TEST
+        INTEGRATION_TEST --> NOTIFY
+    end
+
+    subgraph "AWS Cloud Environment"
+        subgraph "Frontend Hosting"
+            AMPLIFY[📱 AWS Amplify<br/>React SPA]
+            CDN[🌐 CloudFront CDN<br/>Global Distribution]
+            AMPLIFY --> CDN
+        end
+
+        subgraph "Backend Services"
+            API[🔌 API Gateway<br/>REST Endpoints]
+
+            subgraph "Lambda Functions"
+                LAMBDA_CAT[⚡ Categories API]
+                LAMBDA_PROD[⚡ Products API]
+                LAMBDA_ORDER[⚡ Orders API]
+                LAMBDA_HEALTH[⚡ Health Check]
+            end
+
+            API --> LAMBDA_CAT
+            API --> LAMBDA_PROD
+            API --> LAMBDA_ORDER
+            API --> LAMBDA_HEALTH
+        end
+
+        subgraph "Data Layer"
+            DDB_CAT[(🗄️ DynamoDB<br/>Categories)]
+            DDB_PROD[(🗄️ DynamoDB<br/>Products)]
+            DDB_ORDER[(🗄️ DynamoDB<br/>Orders)]
+
+            LAMBDA_CAT --> DDB_CAT
+            LAMBDA_PROD --> DDB_PROD
+            LAMBDA_ORDER --> DDB_ORDER
+        end
+
+        subgraph "Monitoring"
+            CLOUDWATCH[📊 CloudWatch<br/>Logs & Metrics]
+            XRAY[🔍 X-Ray Tracing]
+
+            LAMBDA_CAT --> CLOUDWATCH
+            LAMBDA_PROD --> CLOUDWATCH
+            LAMBDA_ORDER --> CLOUDWATCH
+            API --> XRAY
+        end
+
+        DEPLOY_INFRA --> API
+        DEPLOY_FRONTEND --> AMPLIFY
+        CDN --> |HTTPS API Calls| API
+    end
+
+    subgraph "Users"
+        USER[👥 End Users]
+        USER --> CDN
+    end
+
+    style GITHUB fill:#24292e,stroke:#fff,color:#fff
+    style AMPLIFY fill:#ff9900,stroke:#fff,color:#fff
+    style API fill:#ff9900,stroke:#fff,color:#fff
+    style LAMBDA_CAT fill:#ff9900,stroke:#fff,color:#000
+    style LAMBDA_PROD fill:#ff9900,stroke:#fff,color:#000
+    style LAMBDA_ORDER fill:#ff9900,stroke:#fff,color:#000
+    style LAMBDA_HEALTH fill:#ff9900,stroke:#fff,color:#000
+    style DDB_CAT fill:#3949ab,stroke:#fff,color:#fff
+    style DDB_PROD fill:#3949ab,stroke:#fff,color:#fff
+    style DDB_ORDER fill:#3949ab,stroke:#fff,color:#fff
+    style CLOUDWATCH fill:#ff9900,stroke:#fff,color:#fff
+```
 
 ## 🏗️ Architecture Overview
 
-![Architecture](docs/images/architecture1.svg)
+### Technology Stack
 
-This application demonstrates two complete deployment strategies:
+- **Frontend**: React 18 + TypeScript + Redux Toolkit + Tailwind CSS
+- **Backend**: Node.js Lambda Functions + Express.js
+- **Database**: Amazon DynamoDB (NoSQL)
+- **API**: Amazon API Gateway (REST)
+- **Hosting**: AWS Amplify + CloudFront CDN
+- **CI/CD**: GitHub Actions
+- **IaC**: AWS SAM (Serverless Application Model)
+- **Monitoring**: CloudWatch + X-Ray
 
-### Option A: Serverless Architecture ✅
+# Shopping Cart Architecture
 
-- **Frontend**: React app hosted on S3 + CloudFront
-- **Backend**: AWS Lambda functions + API Gateway
-- **Database**: DynamoDB
-- **Cost**: $1-5/month (pay-per-use)
-- **Best for**: Variable traffic, MVP, cost optimization
+![Architecture](docs/images/architecture.svg)
 
-### Option B: Containerized Architecture ✅
+## 🚀 DevOps Pipeline Stages
 
-- **Frontend**: React app hosted on S3 + CloudFront
-- **Backend**: .NET Web API + Node.js Search API on ECS Fargate
-- **Database**: PostgreSQL RDS + Elasticsearch
-- **Load Balancer**: Application Load Balancer
-- **Cost**: $30-50/month (always-on resources)
-- **Best for**: Enterprise, consistent load, microservices
+### 1. Source Stage
 
-## 🚀 Live Demo
+- **Trigger**: Push to `main` branch
+- **Repository**: GitHub with branch protection
+- **Webhook**: Automatic trigger to GitHub Actions
 
-- **Serverless Demo**: http://serverless-shopping-cart-frontend-1753110732.s3-website-us-east-1.amazonaws.com/
-- **ECS Demo**: [https://your-ecs-cloudfront-domain.com](https://your-ecs-cloudfront-domain.com)
-- **API Documentation**: [http://your-alb-dns.amazonaws.com/swagger](http://your-alb-dns.amazonaws.com/swagger)
+### 2. Build & Test Stage
 
-## 🛠️ Technology Stack
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test Frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run test:coverage
+          npm run lint
+          npm run type-check
 
-### Frontend
+      - name: Test Backend
+        run: |
+          cd backend/serverless
+          npm ci
+          npm test
+          npm run integration-test
+```
 
-- **React 18** with TypeScript
-- **Redux Toolkit** for state management
-- **Material-UI** for components
-- **Axios** for API calls
+### 3. Infrastructure Deployment
 
-### Backend APIs
+```yaml
+deploy-infrastructure:
+  needs: test
+  steps:
+    - name: Deploy SAM Stack
+      run: |
+        sam build
+        sam deploy --stack-name shopping-cart-prod
+```
 
-- **.NET 8 Web API** (Products, Categories, Orders)
-- **Node.js Express** (Search functionality)
-- **OpenAPI/Swagger** documentation
+### 4. Application Deployment
 
-### Cloud Infrastructure
+```yaml
+deploy-application:
+  needs: deploy-infrastructure
+  steps:
+    - name: Deploy Frontend
+      run: |
+        cd frontend
+        npm run build
+        aws s3 sync build/ s3://$BUCKET_NAME
+```
 
-- **AWS ECS Fargate** (containerized services)
-- **AWS Lambda** (serverless functions)
-- **Application Load Balancer**
-- **Amazon ECR** (container registry)
-- **Amazon S3** + **CloudFront** (frontend hosting)
-- **PostgreSQL RDS** / **DynamoDB**
-- **Elasticsearch** / **DynamoDB Search**
+### 5. Post-Deployment Validation
 
-### DevOps & CI/CD
+- Health check endpoints
+- Integration tests
+- Performance validation
+- Security scanning
 
-- **GitHub Actions** (CI/CD pipelines)
-- **AWS CloudFormation** (Infrastructure as Code)
-- **Docker** (containerization)
-- **AWS SAM** (serverless deployment)
-
-## 📁 Project Structure
+## 📦 Project Structure
 
 ```
 shopping-cart-fullstack/
-├── frontend/                    # React application
-│   ├── src/
-│   │   ├── components/         # Reusable UI components
-│   │   ├── pages/             # Page components
-│   │   ├── services/          # API integration
-│   │   ├── store/             # Redux state management
-│   │   └── types/             # TypeScript definitions
-│   ├── public/
-│   └── package.json
-│
-├── backend/
-│   ├── serverless/            # AWS Lambda functions
-│   │   ├── src/
-│   │   │   ├── categories/    # Categories Lambda
-│   │   │   ├── products/      # Products Lambda
-│   │   │   ├── orders/        # Orders Lambda
-│   │   │   └── search/        # Search Lambda
-│   │   └── template.yaml      # SAM template
-│   │
-│   ├── dotnet-api/            # .NET Web API (ECS)
-│   │   ├── Controllers/
-│   │   ├── Models/
-│   │   ├── Services/
-│   │   ├── Program.cs
-│   │   └── Dockerfile
-│   │
-│   └── nodejs-search/         # Node.js Search API (ECS)
-│       ├── routes/
-│       ├── models/
-│       ├── index.js
-│       └── Dockerfile
-│
-├── infrastructure/            # ECS Infrastructure
-│   ├── ecs-infrastructure.yaml
-│   ├── ecs-services.yaml
-│   ├── deploy-everything.sh
-│   └── setup-scripts/
-│
-└── .github/
-    └── workflows/
-        ├── deploy-serverless.yml
-        └── deploy-ecs.yml
+├── 📁 .github/workflows/           # GitHub Actions CI/CD
+│   ├── deploy-serverless.yml       # Serverless deployment pipeline
+│   └── deploy-ecs.yml              # Container deployment pipeline
+├── 📁 frontend/                    # React Application
+│   ├── 📁 src/
+│   │   ├── 📁 components/          # Reusable UI components
+│   │   ├── 📁 pages/               # Route components
+│   │   ├── 📁 store/               # Redux state management
+│   │   ├── 📁 services/            # API integration layer
+│   │   └── 📁 types/               # TypeScript definitions
+│   ├── package.json
+│   └── tsconfig.json
+├── 📁 backend/
+│   ├── 📁 serverless/              # AWS Lambda Functions
+│   │   ├── 📄 template.yaml        # SAM Infrastructure as Code
+│   │   └── 📁 src/
+│   │       ├── 📁 categories/      # Categories API Lambda
+│   │       ├── 📁 products/        # Products API Lambda
+│   │       ├── 📁 orders/          # Orders API Lambda
+│   │       ├── 📁 health/          # Health Check Lambda
+│   │       └── 📁 seed/            # Database Seeding Lambda
+│   ├── 📁 dotnet-api/              # .NET Web API (Alternative)
+│   └── 📁 nodejs-search/           # Node.js Search Service
+├── 📁 infrastructure/              # Infrastructure as Code
+│   ├── ecs-infrastructure.yaml     # ECS CloudFormation
+│   └── ecs-services.yaml           # ECS Services Configuration
+├── 📁 scripts/                     # Utility scripts
+│   ├── verify-setup.sh             # Environment verification
+│   ├── setup-local-dev.sh          # Local development setup
+│   └── deploy-everything.sh        # Manual deployment script
+├── 📄 README.md                    # This file
+├── 📄 package.json                 # Project configuration
+└── 📄 .gitignore                   # Git ignore rules
 ```
 
-## 🚀 Quick Start
+## 🛠️ Local Development Setup
 
 ### Prerequisites
 
-- AWS CLI configured with appropriate permissions
-- Node.js 18+ and npm
+- Node.js 18+
 - .NET 8 SDK
-- Docker (for ECS deployment)
-- GitHub account
+- AWS CLI configured
+- SAM CLI (for serverless development)
+- Git
 
-### 1. Clone Repository
+### Quick Start
 
 ```bash
-git clone https://github.com/your-username/shopping-cart-fullstack.git
+# 1. Clone the repository
+git clone https://github.com/tsahirosenbaom/shopping-cart-fullstack.git
 cd shopping-cart-fullstack
+
+# 2. Verify your setup
+npm run verify
+
+# 3. Install all dependencies
+npm run setup-local
+
+# 4. Start development servers (separate terminals)
+npm run dev:frontend    # React app on :3000
+npm run dev:backend     # .NET API on :5002
+npm run dev:search      # Node.js API on :3001
+npm run dev:serverless  # Lambda local on :3000
 ```
 
-### 2. Install Dependencies
+### Available Scripts
 
 ```bash
-# Frontend
-cd frontend
-npm install
+# Development
+npm run dev:frontend     # Start React development server
+npm run dev:backend      # Start .NET API server
+npm run dev:search       # Start Node.js search API
+npm run dev:serverless   # Start SAM local API
 
-# Node.js API
-cd ../backend/nodejs-search
-npm install
+# Testing
+npm run test:all         # Run all tests
+npm run test:frontend    # Test React components
+npm run test:backend     # Test .NET API
+npm run test:integration # End-to-end tests
 
-# .NET API (restore packages)
-cd ../dotnet-api
-dotnet restore
+# Building
+npm run build:frontend   # Build React for production
+npm run build:backend    # Build .NET API
+
+# Deployment
+npm run deploy:serverless # Deploy serverless stack
+npm run deploy:ecs       # Deploy ECS stack
+
+# Utilities
+npm run verify           # Verify local setup
+npm run setup-local      # Install all dependencies
 ```
 
-### 3. Choose Deployment Option
+## 🌐 API Documentation
 
-#### Option A: Serverless Deployment 🚀
+### Base URLs
 
-```bash
-# Deploy serverless backend
-cd backend/serverless
-sam build
-sam deploy --guided
+- **Production**: `https://api.shopping-cart.example.com`
+- **Staging**: `https://staging-api.shopping-cart.example.com`
+- **Local**: `http://localhost:3000` (SAM Local)
 
-# Deploy frontend
-cd ../../frontend
-npm run build
-# Upload to S3 (automated via GitHub Actions)
-```
-
-#### Option B: ECS Containerized Deployment 🐳
-
-```bash
-# Deploy infrastructure and services
-cd infrastructure
-chmod +x *.sh
-./deploy-everything.sh
-
-# This will:
-# 1. Create ECR repositories
-# 2. Build and push Docker images
-# 3. Deploy VPC, ALB, ECS cluster
-# 4. Deploy services
-# 5. Deploy React frontend
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-#### Frontend (.env.production)
-
-```bash
-REACT_APP_API_BASE_URL=https://your-api-endpoint.com
-REACT_APP_ORDERS_API_BASE_URL=https://your-api-endpoint.com
-```
-
-#### Backend APIs
-
-```bash
-# .NET API
-ASPNETCORE_ENVIRONMENT=Production
-DATABASE_CONNECTION_STRING=your-db-connection
-
-# Node.js API
-NODE_ENV=production
-PORT=3001
-ELASTICSEARCH_URL=your-elasticsearch-endpoint
-```
-
-## 📖 API Documentation
-
-### Core Endpoints
-
-#### Products API
-
-```bash
-GET    /api/products              # Get all products
-POST   /api/products              # Create product
-GET    /api/products/{id}         # Get product by ID
-PUT    /api/products/{id}         # Update product
-DELETE /api/products/{id}         # Delete product
-GET    /api/products/search?q={}  # Search products
-```
+### Endpoints
 
 #### Categories API
 
-```bash
-GET    /api/categories            # Get all categories
-POST   /api/categories            # Create category
-GET    /api/categories/{id}       # Get category by ID
+```http
+GET    /api/categories           # List all categories
+POST   /api/categories           # Create new category
+PUT    /api/categories/{id}      # Update category
+DELETE /api/categories/{id}      # Delete category
+```
+
+#### Products API
+
+```http
+GET    /api/products             # List all products
+GET    /api/products/{id}        # Get product by ID
+GET    /api/products/search      # Search products (?query=term)
+POST   /api/products             # Create new product
+PUT    /api/products/{id}        # Update product
+DELETE /api/products/{id}        # Delete product
 ```
 
 #### Orders API
 
-```bash
-GET    /api/orders                # Get all orders
-POST   /api/orders                # Create order
-GET    /api/orders/{id}           # Get order by ID
-PUT    /api/orders/{id}/status    # Update order status
+```http
+GET    /api/orders               # List orders
+GET    /api/orders/{id}          # Get order by ID
+POST   /api/orders               # Create new order
+PUT    /api/orders/{id}          # Update order status
 ```
 
-### API Response Format
+#### Health Check
+
+```http
+GET    /health                   # System health status
+```
+
+### Sample API Response
 
 ```json
 {
-  "success": true,
-  "data": {...},
-  "message": "Operation completed successfully",
-  "timestamp": "2025-07-22T12:00:00Z"
+  "status": "success",
+  "data": {
+    "id": 1,
+    "name": "Gaming Laptop",
+    "description": "High-performance gaming laptop",
+    "price": 1299.99,
+    "categoryId": 1,
+    "stock": 50,
+    "createdAt": "2025-01-20T10:30:00Z"
+  }
 }
 ```
 
-## 🔄 CI/CD Pipeline
+## 🧪 Testing Strategy
 
-![CI/CD Pipeline](docs/images/cicd-pipeline.svg)
+### Frontend Testing
 
-### Shopping Cart CI/CD Pipeline Architecture
+- **Unit Tests**: Jest + React Testing Library
+- **Component Tests**: Isolated component testing
+- **Integration Tests**: API integration testing
+- **E2E Tests**: Cypress for user workflow testing
 
-#### 🚀 Stage 1: Source Code Trigger
+### Backend Testing
 
-**Git Push to Main Branch** triggers GitHub Actions workflows based on path changes:
+- **Unit Tests**: Jest for Lambda functions
+- **Integration Tests**: API Gateway + Lambda integration
+- **Contract Tests**: API contract validation
+- **Performance Tests**: Load testing with Artillery
 
-- **Serverless Path**: `backend/serverless/**`, `frontend/**`
-- **ECS Path**: `backend/dotnet-api/**`, `backend/nodejs-search/**`, `infrastructure/**`
+### Test Coverage Targets
 
-#### 🧪 Stage 2: Automated Testing
+- **Frontend**: > 80% code coverage
+- **Backend**: > 85% code coverage
+- **Integration**: All critical user paths
 
-**React Frontend Tests:**
+## 🔒 Security & Best Practices
 
-- `npm ci && npm run build`
-- Jest tests (currently skipped due to ES modules)
-- Build verification
+### Security Measures
 
-**Backend API Tests:**
+- **Authentication**: JWT-based authentication
+- **Authorization**: Role-based access control
+- **Input Validation**: Comprehensive input sanitization
+- **CORS**: Properly configured CORS policies
+- **Rate Limiting**: API rate limiting to prevent abuse
+- **HTTPS**: All traffic encrypted in transit
+- **Secrets Management**: AWS Secrets Manager for sensitive data
 
-- .NET API: `dotnet test`
-- Node.js API: `npm test` (if exists)
-- Lambda functions: individual testing
+### Code Quality
 
-#### 📦 Stage 3A: Serverless Deployment Path
+- **TypeScript**: Type safety across the application
+- **ESLint**: Code linting with strict rules
+- **Prettier**: Consistent code formatting
+- **Husky**: Pre-commit hooks for quality gates
+- **SonarQube**: Static code analysis (optional)
 
-**Build & Deploy Backend:**
+### Infrastructure Security
 
-- AWS SAM build
-- Deploy Lambda functions
-- Create API Gateway endpoints
-- Output API URL
+- **IAM**: Least privilege access policies
+- **VPC**: Network isolation (when applicable)
+- **Encryption**: At-rest and in-transit encryption
+- **Monitoring**: Comprehensive logging and alerting
 
-**Deploy React Frontend:**
+## 📊 Performance & Monitoring
 
-- Set REACT_APP_API_BASE_URL from backend
-- `npm run build`
-- Deploy to S3 with website hosting
-- Configure CloudFront distribution
+### Key Metrics
 
-#### 🐳 Stage 3B: ECS Containerized Path
+- **Response Time**: < 200ms average API response
+- **Availability**: 99.9% uptime target
+- **Error Rate**: < 0.1% error rate
+- **Throughput**: 1000+ requests per second capacity
 
-**Container Build & Push:**
+### Monitoring Stack
 
-- Setup ECR repositories
-- Build Docker images (.NET API, Node.js Search)
-- Push to Amazon ECR
-- Tag with latest
+- **CloudWatch**: AWS native monitoring
+- **X-Ray**: Distributed tracing
+- **Custom Metrics**: Business metrics tracking
+- **Alerting**: PagerDuty/Slack integration
 
-**Infrastructure Deployment:**
+### Performance Optimizations
 
-- Deploy VPC, subnets, security groups
-- Create Application Load Balancer
-- Setup ECS Fargate cluster
-- Configure target groups
-
-**Service Deployment:**
-
-- Register ECS task definitions
-- Create ECS services
-- Configure health checks
-- Connect to load balancer
-
-**Frontend Integration:**
-
-- Get ALB DNS name from infrastructure
-- Update React app environment
-- Rebuild and deploy to S3
-- Invalidate CloudFront cache
-
-### Pipeline Comparison
-
-| Feature                  | Serverless (Lambda)     | Containerized (ECS)                           |
-| ------------------------ | ----------------------- | --------------------------------------------- |
-| **Status**               | ✅ Fully Working        | ✅ Fully Working                              |
-| **Trigger Paths**        | `backend/serverless/**` | `backend/dotnet-api/**` + `infrastructure/**` |
-| **Deployment Time**      | ~5-8 minutes            | ~15-25 minutes                                |
-| **Frontend Environment** | API Gateway URL         | Application Load Balancer DNS                 |
-| **Architecture**         | Direct SAM deployment   | Infrastructure → Services → Frontend update   |
-
-### Automated Deployments
-
-#### Serverless Pipeline
-
-- **Trigger**: Push to `main` with changes in `backend/serverless/**` or `frontend/**`
-- **Steps**: Test → Build → Deploy Lambda → Deploy Frontend
-- **Duration**: ~5-8 minutes
-
-#### ECS Pipeline
-
-- **Trigger**: Push to `main` with changes in `backend/dotnet-api/**`, `backend/nodejs-search/**`, or `infrastructure/**`
-- **Steps**: Test → Build Docker Images → Deploy Infrastructure → Deploy Services → Update Frontend
-- **Duration**: ~15-25 minutes
-
-### Manual Deployment
-
-```bash
-# Trigger serverless deployment
-git add .
-git commit -m "Update serverless backend"
-git push origin main
-
-# Trigger ECS deployment
-git add infrastructure/
-git commit -m "Update ECS infrastructure"
-git push origin main
-```
-
-## 🧪 Testing
-
-### Frontend Tests
-
-```bash
-cd frontend
-npm test                    # Run Jest tests
-npm run test:coverage       # Run with coverage
-npm run test:e2e           # Run Cypress E2E tests
-```
-
-### Backend Tests
-
-```bash
-# .NET API
-cd backend/dotnet-api
-dotnet test
-
-# Node.js API
-cd backend/nodejs-search
-npm test
-
-# Lambda Functions
-cd backend/serverless
-sam local start-api        # Test locally
-```
-
-### Load Testing
-
-```bash
-# Install artillery
-npm install -g artillery
-
-# Run load tests
-artillery run load-tests/api-load-test.yml
-```
-
-## 📊 Monitoring & Observability
-
-### AWS CloudWatch
-
-- **Application metrics**: Request latency, error rates, throughput
-- **Infrastructure metrics**: CPU, memory, network utilization
-- **Custom dashboards**: Business KPIs and technical metrics
-
-### Logging
-
-- **ECS**: CloudWatch Logs integration
-- **Lambda**: Built-in CloudWatch Logs
-- **Frontend**: CloudWatch RUM (Real User Monitoring)
-
-### Health Checks
-
-```bash
-# ECS Health Check
-curl http://your-alb-dns.amazonaws.com/api/health
-
-# Serverless Health Check
-curl https://your-api-gateway.amazonaws.com/health
-```
-
-## 🔐 Security
-
-### Implemented Security Measures
-
-- **HTTPS everywhere** (CloudFront, ALB, API Gateway)
-- **CORS configuration** for cross-origin requests
-- **VPC security groups** for network isolation
-- **IAM roles** with least-privilege access
-- **Secrets management** via AWS Systems Manager
-- **Input validation** and sanitization
-
-### Security Headers
-
-```javascript
-// Implemented in both architectures
-{
-  "Strict-Transport-Security": "max-age=31536000",
-  "Content-Security-Policy": "default-src 'self'",
-  "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY"
-}
-```
+- **CDN**: Global content distribution
+- **Caching**: Multi-layer caching strategy
+- **Database**: Optimized queries and indexes
+- **Lambda**: Right-sized memory allocation
+- **API Gateway**: Response caching enabled
 
 ## 💰 Cost Analysis
 
-### Serverless (Pay-per-use)
+### Monthly Cost Breakdown (Estimated)
 
-- **Lambda**: ~$0.20 per 1M requests
-- **API Gateway**: ~$3.50 per 1M requests
-- **DynamoDB**: ~$1.25 per 1M read/write units
-- **S3 + CloudFront**: ~$1-5/month
-- **Total**: $1-15/month (depending on traffic)
-
-### ECS (Always-on)
-
-- **ECS Fargate**: ~$30/month (2 services, 0.25 vCPU each)
-- **ALB**: ~$16/month
-- **RDS**: ~$25/month (db.t3.micro)
-- **S3 + CloudFront**: ~$1-5/month
-- **Total**: $70-85/month
-
-## 🚨 Troubleshooting
-
-### Common Issues
-
-#### 1. React App Shows "Network Error"
-
-```bash
-# Check API endpoints
-curl http://your-api-endpoint.com/api/health
-
-# Verify environment variables
-cat frontend/.env.production
-
-# Check CORS configuration
-curl -H "Origin: https://your-frontend-domain.com" \
-     -H "Access-Control-Request-Method: GET" \
-     -H "Access-Control-Request-Headers: X-Requested-With" \
-     -X OPTIONS \
-     http://your-api-endpoint.com/api/products
+```
+🏗️ Infrastructure Costs:
+├── AWS Lambda (1M requests)      $0.20
+├── API Gateway (1M requests)     $3.50
+├── DynamoDB (1M RW requests)     $1.25
+├── Amplify Hosting (5GB)         $0.50
+├── CloudFront (100GB transfer)   $8.50
+├── CloudWatch Logs (10GB)        $2.50
+└── Miscellaneous                 $3.55
+                                --------
+💰 Total Estimated Cost          ~$20/month
 ```
 
-#### 2. ECS Service Won't Start
+### Cost Optimization Strategies
 
-```bash
-# Check service events
-aws ecs describe-services \
-    --cluster shopping-cart-system-cluster \
-    --services shopping-cart-system-dotnet-api
+- **Pay-per-use**: Serverless architecture scales to zero
+- **Reserved Capacity**: For predictable workloads
+- **Caching**: Reduce API calls and database requests
+- **Monitoring**: Track and optimize high-cost operations
+- **Right-sizing**: Optimal Lambda memory allocation
 
-# Check task logs
-aws logs get-log-events \
-    --log-group-name /ecs/shopping-cart-system-dotnet-api \
-    --log-stream-name your-log-stream
+## 🚀 Deployment Options
+
+### Option 1: Serverless (Recommended)
+
+- **Cost**: $5-20/month
+- **Scaling**: Automatic (0 to millions)
+- **Maintenance**: Minimal
+- **Best for**: Variable traffic, cost optimization
+
+### Option 2: Container (ECS)
+
+- **Cost**: $30-50/month
+- **Scaling**: Manual/Auto-scaling
+- **Maintenance**: Moderate
+- **Best for**: Consistent traffic, enterprise requirements
+
+## 🌍 Environment Strategy
+
+### Development Environment
+
+- **Local**: Full stack running locally
+- **Services**: Mock services and local databases
+- **Testing**: Unit and integration tests
+
+### Staging Environment
+
+- **Purpose**: Pre-production validation
+- **Data**: Synthetic test data
+- **Testing**: Full regression testing
+
+### Production Environment
+
+- **High Availability**: Multi-AZ deployment
+- **Monitoring**: Full observability stack
+- **Backup**: Automated backup and recovery
+
+## 📈 Scalability & Performance
+
+### Auto Scaling Configuration
+
+```yaml
+# Lambda Auto Scaling
+ReservedConcurrency: 100
+ProvisionedConcurrency: 10
+
+# API Gateway Throttling
+ThrottleSettings:
+  BurstLimit: 2000
+  RateLimit: 1000
+
+# DynamoDB Auto Scaling
+BillingMode: PAY_PER_REQUEST
 ```
 
-#### 3. Load Balancer Health Checks Failing
+### Performance Benchmarks
 
-```bash
-# Check target group health
-aws elbv2 describe-target-health \
-    --target-group-arn your-target-group-arn
-
-# Test health endpoint directly
-curl http://your-task-ip:port/api/health
-```
-
-### Debug Commands
-
-```bash
-# Check all ECS services
-aws ecs list-services --cluster shopping-cart-system-cluster
-
-# Check CloudFormation stacks
-aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE
-
-# Check ECR repositories
-aws ecr describe-repositories
-
-# Check S3 buckets
-aws s3 ls | grep shopping-cart
-```
+- **Cold Start**: < 500ms
+- **Warm Requests**: < 100ms
+- **Database Queries**: < 50ms
+- **Page Load**: < 2 seconds
 
 ## 🤝 Contributing
 
 ### Development Workflow
 
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/amazing-feature`
-3. Make changes and test thoroughly
-4. Commit: `git commit -m 'Add amazing feature'`
-5. Push: `git push origin feature/amazing-feature`
-6. Create Pull Request
+1. **Fork** the repository
+2. **Create** feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** changes (`git commit -m 'Add amazing feature'`)
+4. **Push** branch (`git push origin feature/amazing-feature`)
+5. **Open** Pull Request
 
 ### Code Standards
 
-- **Frontend**: ESLint + Prettier configuration
-- **Backend**: Follow language-specific conventions (.NET, Node.js)
-- **Infrastructure**: CloudFormation best practices
-- **Documentation**: Update README for any architectural changes
+- Follow TypeScript/JavaScript style guide
+- Write meaningful commit messages
+- Include tests for new features
+- Update documentation as needed
 
-## 📝 License
+### Pull Request Process
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+1. Ensure all tests pass
+2. Update README if needed
+3. Request review from maintainers
+4. Address review feedback
+5. Squash commits before merge
 
-## 🙏 Acknowledgments
+## 📚 Additional Resources
 
-- AWS for comprehensive cloud services
-- React and .NET communities for excellent documentation
-- GitHub Actions for seamless CI/CD integration
+### Documentation
 
-## 📞 Support
+- [AWS SAM Developer Guide](https://docs.aws.amazon.com/serverless-application-model/)
+- [React Documentation](https://reactjs.org/docs/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [DynamoDB Best Practices](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html)
 
-- **Documentation**: Check this README and inline code comments
-- **Issues**: Open GitHub issues for bugs or feature requests
-- **Discussions**: Use GitHub Discussions for questions
+### Useful Links
+
+- **Live Application**: [Production URL]
+- **Staging Environment**: [Staging URL]
+- **API Documentation**: [API Docs URL]
+- **Monitoring Dashboard**: [CloudWatch URL]
+- **CI/CD Pipeline**: [GitHub Actions URL]
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Local Development
+
+```bash
+# Port already in use
+npm run verify                    # Check port availability
+lsof -ti:3000 | xargs kill -9    # Kill process on port 3000
+
+# Dependencies issues
+npm run setup-local               # Reinstall all dependencies
+npm cache clean --force           # Clear npm cache
+```
+
+#### Deployment Issues
+
+```bash
+# AWS credentials
+aws sts get-caller-identity       # Verify AWS access
+aws configure list                # Check configuration
+
+# SAM deployment
+sam build                         # Build SAM application
+sam deploy --debug               # Deploy with debug info
+```
+
+#### API Issues
+
+```bash
+# Test API endpoints
+curl https://api-url/health       # Health check
+npm run test:integration         # Run integration tests
+```
+
+## 📞 Support & Contact
+
+### Getting Help
+
+- **Issues**: Create GitHub issue for bugs
+- **Questions**: Use GitHub discussions
+- **Security**: Email security@example.com
+- **General**: Contact team@example.com
+
+### Maintainers
+
+- **Tsahi Rosenbaum** - [@tsahirosenbaom](https://github.com/tsahirosenbaom)
 
 ---
 
-**Built with ❤️ demonstrating modern DevOps practices with both serverless and traditional containerized architectures.**
+## 🎉 Acknowledgments
+
+Built with ❤️ using modern DevOps practices and cloud-native technologies.
+
+**⭐ If this project helped you, please give it a star!**
+
+---
+
+_Last updated: January 2025_

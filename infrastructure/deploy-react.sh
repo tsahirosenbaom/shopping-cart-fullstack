@@ -19,12 +19,8 @@ fi
 
 echo "🔗 Using ALB DNS: $ALB_DNS_NAME"
 
-# Navigate to the correct frontend directory
-cd ../frontend
-
-echo "📁 Current directory: $(pwd)"
-echo "📁 Checking frontend files:"
-ls -la
+# Update React app API URLs
+cd ~/shopping-cart-app
 
 # Create production environment file
 cat > .env.production << ENVEOF
@@ -87,35 +83,13 @@ APIEOF
 
 # Build React app for production
 echo "🏗️ Building React app..."
-npm ci && npm run build
-
-if [ ! -d "build" ]; then
-    echo "❌ Build directory not found. Build failed."
-    exit 1
-fi
+npm run build
 
 # Create S3 bucket for static hosting
 BUCKET_NAME="$PROJECT_NAME-frontend-$(date +%s)"
-echo "🪣 Creating S3 bucket: $BUCKET_NAME"
 aws s3 mb "s3://$BUCKET_NAME" --region $REGION
 
-# IMPORTANT: Remove public access block BEFORE uploading files
-echo "🔓 Enabling public access for S3 bucket..."
-aws s3api put-public-access-block \
-    --bucket $BUCKET_NAME \
-    --public-access-block-configuration \
-    BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false
-
-# Upload build files to S3 FIRST
-echo "📤 Uploading React app to S3..."
-aws s3 sync build/ "s3://$BUCKET_NAME" --delete
-
-# Verify files were uploaded
-echo "✅ Verifying uploaded files:"
-aws s3 ls "s3://$BUCKET_NAME/"
-
-# NOW configure bucket for static website hosting (after files exist)
-echo "🌐 Configuring S3 website hosting..."
+# Configure bucket for static website hosting
 aws s3 website "s3://$BUCKET_NAME" \
     --index-document index.html \
     --error-document index.html
@@ -138,9 +112,9 @@ POLICYEOF
 
 aws s3api put-bucket-policy --bucket "$BUCKET_NAME" --policy file://bucket-policy.json
 
-# Test S3 website before creating CloudFront
-WEBSITE_URL="http://$BUCKET_NAME.s3-website-$REGION.amazonaws.com"
-echo "🧪 Testing S3 website: $WEBSITE_URL"
+# Upload build files to S3
+echo "📤 Uploading React app to S3..."
+aws s3 sync build/ "s3://$BUCKET_NAME" --delete
 
 # Create CloudFront distribution
 echo "🌐 Creating CloudFront distribution..."
@@ -206,15 +180,11 @@ echo ""
 echo "🎉 React app deployment complete!"
 echo "================================="
 echo "S3 Bucket: $BUCKET_NAME"
-echo "S3 Website: $WEBSITE_URL"
 echo "CloudFront Distribution: $DISTRIBUTION_ID"
 echo "React App URL: https://$CLOUDFRONT_DOMAIN"
 echo ""
 echo "⚠️  Note: CloudFront distribution takes 15-20 minutes to deploy globally"
 echo "You can check status with: aws cloudfront get-distribution --id $DISTRIBUTION_ID"
-
-# Go back to infrastructure directory
-cd ../infrastructure
 
 # Save deployment info
 cat > react-deployment.txt << DEPLOYEOF
@@ -222,10 +192,6 @@ BUCKET_NAME=$BUCKET_NAME
 DISTRIBUTION_ID=$DISTRIBUTION_ID
 CLOUDFRONT_DOMAIN=$CLOUDFRONT_DOMAIN
 ALB_DNS_NAME=$ALB_DNS_NAME
-WEBSITE_URL=$WEBSITE_URL
 DEPLOYEOF
 
 echo "📝 Deployment info saved to react-deployment.txt"
-
-# Clean up temporary files
-rm -f bucket-policy.json cloudfront-config.json

@@ -7,7 +7,6 @@ namespace ProductApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Produces("application/json")]
     public class CategoriesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

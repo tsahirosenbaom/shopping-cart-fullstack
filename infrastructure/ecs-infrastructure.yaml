@@ -1,21 +1,21 @@
-# ecs-infrastructure.yaml
-# ======================
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "ECS Infrastructure for Shopping Cart System"
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'ECS Infrastructure for Shopping Cart System'
 
 Parameters:
   ProjectName:
     Type: String
     Default: shopping-cart-system
+    
   DotNetImageURI:
     Type: String
-    Description: URI of the .NET API Docker image
+    Description: ECR URI for .NET API image
+    
   NodeJsImageURI:
     Type: String
-    Description: URI of the Node.js API Docker image
+    Description: ECR URI for Node.js API image
 
 Resources:
-  # VPC
+  # VPC Configuration
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -32,7 +32,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.1.0/24
-      AvailabilityZone: !Select [0, !GetAZs ""]
+      AvailabilityZone: !Select [0, !GetAZs '']
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
@@ -43,7 +43,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.2.0/24
-      AvailabilityZone: !Select [1, !GetAZs ""]
+      AvailabilityZone: !Select [1, !GetAZs '']
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
@@ -107,6 +107,9 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-alb-sg
 
   ECSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -119,26 +122,40 @@ Resources:
           ToPort: 80
           SourceSecurityGroupId: !Ref ALBSecurityGroup
         - IpProtocol: tcp
-          FromPort: 5002
-          ToPort: 5002
+          FromPort: 3000
+          ToPort: 3000
           SourceSecurityGroupId: !Ref ALBSecurityGroup
-        - IpProtocol: tcp
-          FromPort: 3001
-          ToPort: 3001
-          SourceSecurityGroupId: !Ref ALBSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-ecs-sg
+
+  # ECS Cluster
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub ${ProjectName}-cluster
+      CapacityProviders:
+        - FARGATE
+        - FARGATE_SPOT
+      DefaultCapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
 
   # Application Load Balancer
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Name: !Sub ${ProjectName}-alb
+      Scheme: internet-facing
+      Type: application
       Subnets:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
       SecurityGroups:
         - !Ref ALBSecurityGroup
-      Type: application
-      Scheme: internet-facing
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-alb
 
   # Target Groups
   DotNetTargetGroup:
@@ -149,19 +166,25 @@ Resources:
       Protocol: HTTP
       VpcId: !Ref VPC
       TargetType: ip
-      HealthCheckPath: /api/health
+      HealthCheckPath: /swagger
       HealthCheckProtocol: HTTP
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
 
   NodeJsTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: !Sub ${ProjectName}-nodejs-tg
-      Port: 3001
+      Port: 3000
       Protocol: HTTP
       VpcId: !Ref VPC
       TargetType: ip
-      HealthCheckPath: /api/health
+      HealthCheckPath: /health
       HealthCheckProtocol: HTTP
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
 
   # ALB Listener
   ALBListener:
@@ -183,100 +206,58 @@ Resources:
           TargetGroupArn: !Ref NodeJsTargetGroup
       Conditions:
         - Field: path-pattern
-          Values: ["/api/search*"]
+          Values:
+            - '/api/orders*'
+            - '/api/search*'
+            - '/health'
       ListenerArn: !Ref ALBListener
-      Priority: 1
-
-  # ECS Cluster
-  ECSCluster:
-    Type: AWS::ECS::Cluster
-    Properties:
-      ClusterName: !Sub ${ProjectName}-cluster
-
-  # IAM Roles
-  ECSTaskRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-
-  ECSExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Priority: 100
 
 Outputs:
   VPCId:
     Description: VPC ID
     Value: !Ref VPC
     Export:
-      Name: !Sub ${ProjectName}-vpc-id
-
+      Name: !Sub ${ProjectName}-VPC-ID
+      
   PublicSubnet1Id:
     Description: Public Subnet 1 ID
     Value: !Ref PublicSubnet1
     Export:
-      Name: !Sub ${ProjectName}-public-subnet-1-id
-
+      Name: !Sub ${ProjectName}-PublicSubnet1-ID
+      
   PublicSubnet2Id:
     Description: Public Subnet 2 ID
     Value: !Ref PublicSubnet2
     Export:
-      Name: !Sub ${ProjectName}-public-subnet-2-id
-
-  ECSCluster:
-    Description: ECS Cluster Name
+      Name: !Sub ${ProjectName}-PublicSubnet2-ID
+      
+  ECSClusterArn:
+    Description: ECS Cluster ARN
     Value: !Ref ECSCluster
     Export:
-      Name: !Sub ${ProjectName}-cluster
-
+      Name: !Sub ${ProjectName}-ECSCluster-ARN
+      
   ALBDNSName:
     Description: Application Load Balancer DNS Name
     Value: !GetAtt ApplicationLoadBalancer.DNSName
     Export:
-      Name: !Sub ${ProjectName}-alb-dns-name
-
+      Name: !Sub ${ProjectName}-ALB-DNSName
+      
   DotNetTargetGroupArn:
     Description: .NET Target Group ARN
     Value: !Ref DotNetTargetGroup
     Export:
-      Name: !Sub ${ProjectName}-dotnet-tg-arn
-
+      Name: !Sub ${ProjectName}-DotNetTG-ARN
+      
   NodeJsTargetGroupArn:
     Description: Node.js Target Group ARN
     Value: !Ref NodeJsTargetGroup
     Export:
-      Name: !Sub ${ProjectName}-nodejs-tg-arn
-
-  ECSTaskRoleArn:
-    Description: ECS Task Role ARN
-    Value: !GetAtt ECSTaskRole.Arn
-    Export:
-      Name: !Sub ${ProjectName}-task-role-arn
-
-  ECSExecutionRoleArn:
-    Description: ECS Execution Role ARN
-    Value: !GetAtt ECSExecutionRole.Arn
-    Export:
-      Name: !Sub ${ProjectName}-execution-role-arn
-
+      Name: !Sub ${ProjectName}-NodeJsTG-ARN
+      
   ECSSecurityGroupId:
     Description: ECS Security Group ID
     Value: !Ref ECSSecurityGroup
     Export:
-      Name: !Sub ${ProjectName}-ecs-sg-id
+      Name: !Sub ${ProjectName}-ECSSecurityGroup-ID

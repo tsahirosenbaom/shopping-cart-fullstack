@@ -1,0 +1,159 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'ECS Services for Shopping Cart System'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: shopping-cart-system
+    
+  DotNetImageURI:
+    Type: String
+    Description: ECR URI for .NET API image
+    
+  NodeJsImageURI:
+    Type: String
+    Description: ECR URI for Node.js API image
+
+Resources:
+  # IAM Role for ECS Tasks
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-ecs-execution-role
+
+  # CloudWatch Log Groups
+  DotNetLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /ecs/${ProjectName}/dotnet-api
+      RetentionInDays: 7
+
+  NodeJsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /ecs/${ProjectName}/nodejs-api
+      RetentionInDays: 7
+
+  # ECS Task Definitions
+  DotNetTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${ProjectName}-dotnet-api
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 512
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      ContainerDefinitions:
+        - Name: dotnet-api
+          Image: !Ref DotNetImageURI
+          PortMappings:
+            - ContainerPort: 80
+              Protocol: tcp
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref DotNetLogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+          Environment:
+            - Name: ASPNETCORE_ENVIRONMENT
+              Value: Production
+            - Name: ASPNETCORE_URLS
+              Value: http://+:80
+
+  NodeJsTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${ProjectName}-nodejs-api
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 512
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      ContainerDefinitions:
+        - Name: nodejs-api
+          Image: !Ref NodeJsImageURI
+          PortMappings:
+            - ContainerPort: 3000
+              Protocol: tcp
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref NodeJsLogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+            - Name: PORT
+              Value: '3000'
+
+  # ECS Services
+  DotNetService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Sub ${ProjectName}-dotnet-api
+      Cluster: 
+        Fn::ImportValue: !Sub ${ProjectName}-ECSCluster-ARN
+      TaskDefinition: !Ref DotNetTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - Fn::ImportValue: !Sub ${ProjectName}-ECSSecurityGroup-ID
+          Subnets:
+            - Fn::ImportValue: !Sub ${ProjectName}-PublicSubnet1-ID
+            - Fn::ImportValue: !Sub ${ProjectName}-PublicSubnet2-ID
+          AssignPublicIp: ENABLED
+      LoadBalancers:
+        - ContainerName: dotnet-api
+          ContainerPort: 80
+          TargetGroupArn:
+            Fn::ImportValue: !Sub ${ProjectName}-DotNetTG-ARN
+
+  NodeJsService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Sub ${ProjectName}-nodejs-api
+      Cluster:
+        Fn::ImportValue: !Sub ${ProjectName}-ECSCluster-ARN
+      TaskDefinition: !Ref NodeJsTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - Fn::ImportValue: !Sub ${ProjectName}-ECSSecurityGroup-ID
+          Subnets:
+            - Fn::ImportValue: !Sub ${ProjectName}-PublicSubnet1-ID
+            - Fn::ImportValue: !Sub ${ProjectName}-PublicSubnet2-ID
+          AssignPublicIp: ENABLED
+      LoadBalancers:
+        - ContainerName: nodejs-api
+          ContainerPort: 3000
+          TargetGroupArn:
+            Fn::ImportValue: !Sub ${ProjectName}-NodeJsTG-ARN
+
+Outputs:
+  DotNetServiceArn:
+    Description: .NET API Service ARN
+    Value: !Ref DotNetService
+    
+  NodeJsServiceArn:
+    Description: Node.js API Service ARN
+    Value: !Ref NodeJsService
