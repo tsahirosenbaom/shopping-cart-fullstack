@@ -25,12 +25,6 @@ This application demonstrates two complete deployment strategies:
 - **Cost**: $30-50/month (always-on resources)
 - **Best for**: Enterprise, consistent load, microservices
 
-## 🚀 Live Demo
-
-- **Serverless Demo**: http://serverless-shopping-cart-frontend-1753110732.s3-website-us-east-1.amazonaws.com/
-- **ECS Demo**: [https://your-ecs-cloudfront-domain.com](https://your-ecs-cloudfront-domain.com)
-- **API Documentation**: [http://your-alb-dns.amazonaws.com/swagger](http://your-alb-dns.amazonaws.com/swagger)
-
 ## 🛠️ Technology Stack
 
 ### Frontend
