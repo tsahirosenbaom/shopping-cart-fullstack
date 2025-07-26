@@ -48,7 +48,7 @@ jobs:
 
   deploy-serverless:
     needs: test
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/server_less'
     runs-on: ubuntu-latest
     outputs:
       api-url: ${{ steps.deploy.outputs.api-url }}
