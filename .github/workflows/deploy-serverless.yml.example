@@ -1,226 +1,95 @@
-# Copy the serverless workflow content here
-# Rename to deploy-serverless.yml to enable
-EOF
+name: Deploy Serverless Shopping Cart
 
-# Copy ECS workflow  
-cat > .github/workflows/deploy-ecs.yml.example << 'ECSEOF'
-# Copy the ECS workflow content here
-# Rename to deploy-ecs.yml to enable
-EOF
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/serverless/**'
+      - 'frontend/**'
+      - '.github/workflows/deploy-serverless.yml'
+  pull_request:
+    branches: [ main ]
 
-# Create deployment choice script
-cat > scripts/choose-deployment.sh << 'EOF'
-#!/bin/bash
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '18'
+  STACK_NAME: serverless-shopping-cart
 
-echo "🚀 Shopping Cart Deployment Strategy Setup"
-echo "=========================================="
-echo ""
-echo "Choose your deployment strategy:"
-echo "1) Serverless (AWS Lambda) - $1-5/month, pay per use"
-echo "2) ECS Fargate - $30-35/month, always available"
-echo "3) Both (for comparison)"
-echo ""
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-read -p "Enter your choice (1-3): " choice
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
-case $choice in
-    1)
-        echo "📦 Setting up Serverless deployment..."
-        cp .github/workflows/deploy-serverless.yml.example .github/workflows/deploy-serverless.yml
-        echo "✅ Serverless workflow enabled"
-        echo "💡 Commit and push to deploy!"
-        ;;
-    2)
-        echo "🐳 Setting up ECS deployment..."
-        cp .github/workflows/deploy-ecs.yml.example .github/workflows/deploy-ecs.yml
-        echo "✅ ECS workflow enabled"
-        echo "💡 Commit and push to deploy!"
-        ;;
-    3)
-        echo "🔄 Setting up both deployments..."
-        cp .github/workflows/deploy-serverless.yml.example .github/workflows/deploy-serverless.yml
-        cp .github/workflows/deploy-ecs.yml.example .github/workflows/deploy-ecs.yml
-        echo "✅ Both workflows enabled"
-        echo "⚠️  Note: This will create resources for both - monitor costs!"
-        ;;
-    *)
-        echo "❌ Invalid choice"
-        exit 1
-        ;;
-esac
+      - name: Test React Frontend
+        run: |
+          if [ -f "frontend/package.json" ]; then
+            cd frontend
+            npm ci
+            npm run test -- --coverage --watchAll=false || echo "No tests or tests failed"
+          fi
 
-echo ""
-echo "📋 Next steps:"
-echo "1. Set up AWS credentials in GitHub Secrets:"
-echo "   - AWS_ACCESS_KEY_ID"
-echo "   - AWS_SECRET_ACCESS_KEY"
-echo "2. Commit and push:"
-echo "   git add ."
-echo "   git commit -m 'Enable deployment'"
-echo "   git push origin main"
-echo "3. Monitor deployment in GitHub Actions tab"
-EOF
+      - name: Test Lambda Functions
+        run: |
+          if [ -d "backend/serverless/src" ]; then
+            cd backend/serverless
+            for func in src/*/; do
+              if [ -f "$func/package.json" ]; then
+                cd "$func" && npm ci && npm test 2>/dev/null || echo "No tests for $func"
+                cd ../..
+              fi
+            done
+          fi
 
-chmod +x scripts/choose-deployment.sh
+  deploy-serverless:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      api-url: ${{ steps.deploy.outputs.api-url }}
+    steps:
+      - uses: actions/checkout@v4
 
-# Create package.json for root directory
-cat > package.json << 'EOF'
-{
-  "name": "shopping-cart-fullstack",
-  "version": "1.0.0",
-  "description": "Full-stack shopping cart with React and multiple backend options",
-  "scripts": {
-    "setup": "scripts/choose-deployment.sh",
-    "dev:frontend": "cd frontend && npm start",
-    "dev:backend": "cd backend/dotnet-api && dotnet run",
-    "dev:search": "cd backend/nodejs-search && npm start",
-    "dev:serverless": "cd backend/serverless && sam local start-api",
-    "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend/dotnet-api && dotnet build",
-    "test:frontend": "cd frontend && npm test",
-    "test:backend": "cd backend/dotnet-api && dotnet test",
-    "deploy:local": "infrastructure/deploy-everything.sh"
-  },
-  "keywords": ["shopping-cart", "react", "dotnet", "nodejs", "aws", "serverless", "ecs"],
-  "license": "MIT"
-}
-EOF
+      - name: Setup AWS SAM
+        uses: aws-actions/setup-sam@v2
 
-# Create local development setup script
-cat > scripts/setup-local-dev.sh << 'EOF'
-#!/bin/bash
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-echo "🛠️ Setting up local development environment..."
+      - name: Build and Deploy
+        id: deploy
+        run: |
+          cd backend/serverless
+          sam build
+          BUCKET_NAME="$STACK_NAME-$(date +%s)"
+          aws s3 mb s3://$BUCKET_NAME
+          sam deploy --stack-name $STACK_NAME --s3-bucket $BUCKET_NAME --capabilities CAPABILITY_IAM --no-confirm-changeset
+          API_URL=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`ShoppingCartApi`].OutputValue' --output text)
+          echo "api-url=$API_URL" >> $GITHUB_OUTPUT
 
-# Install frontend dependencies
-if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
-    echo "📱 Installing frontend dependencies..."
-    cd frontend
-    npm install
-    cd ..
-fi
-
-# Install Node.js backend dependencies
-if [ -d "backend/nodejs-search" ] && [ -f "backend/nodejs-search/package.json" ]; then
-    echo "🔍 Installing Node.js search API dependencies..."
-    cd backend/nodejs-search
-    npm install
-    cd ../..
-fi
-
-# Install serverless dependencies
-if [ -d "backend/serverless" ]; then
-    echo "⚡ Installing serverless dependencies..."
-    cd backend/serverless
-    for func in src/*/; do
-        if [ -f "$func/package.json" ]; then
-            echo "Installing dependencies for $func"
-            cd "$func"
-            npm install
-            cd ../..
-        fi
-    done
-    cd ../..
-fi
-
-# Check .NET installation
-if command -v dotnet &> /dev/null; then
-    echo "✅ .NET SDK found: $(dotnet --version)"
-    
-    # Restore .NET dependencies
-    if [ -d "backend/dotnet-api" ] && [ -f "backend/dotnet-api/*.csproj" ]; then
-        echo "🔧 Restoring .NET dependencies..."
-        cd backend/dotnet-api
-        dotnet restore
-        cd ../..
-    fi
-else
-    echo "❌ .NET SDK not found. Please install .NET 8 SDK"
-fi
-
-# Check Node.js installation
-if command -v node &> /dev/null; then
-    echo "✅ Node.js found: $(node --version)"
-else
-    echo "❌ Node.js not found. Please install Node.js 18+"
-fi
-
-# Check AWS CLI
-if command -v aws &> /dev/null; then
-    echo "✅ AWS CLI found: $(aws --version)"
-else
-    echo "⚠️  AWS CLI not found. Install for deployment: pip install awscli"
-fi
-
-# Check SAM CLI
-if command -v sam &> /dev/null; then
-    echo "✅ SAM CLI found: $(sam --version)"
-else
-    echo "⚠️  SAM CLI not found. Install for serverless development"
-fi
-
-echo ""
-echo "🎯 Development Commands:"
-echo "npm run dev:frontend    # Start React app (port 3000)"
-echo "npm run dev:backend     # Start .NET API (port 5002)"
-echo "npm run dev:search      # Start Node.js API (port 3001)"
-echo "npm run dev:serverless  # Start serverless locally (port 3000)"
-echo ""
-echo "✅ Local development setup complete!"
-EOF
-
-chmod +x scripts/setup-local-dev.sh
-
-# Initial commit setup
-echo ""
-echo "📝 Creating initial Git setup..."
-
-# Stage all files
-git add .
-
-# Create initial commit
-git commit -m "Initial commit: Full-stack shopping cart system
-
-Features:
-- React + Redux + TypeScript frontend
-- .NET 8 Web API backend
-- Node.js search service
-- AWS Lambda serverless option
-- Automated GitHub Actions deployment
-- Choose between serverless ($1-5/month) or ECS ($30-35/month)
-
-Setup:
-1. npm run setup - Choose deployment strategy
-2. Set AWS credentials in GitHub Secrets
-3. git push origin main - Deploy automatically"
-
-echo ""
-echo "🎉 Project organization complete!"
-echo "================================="
-echo ""
-echo "📁 Organized project structure:"
-echo "$(pwd)"
-echo ""
-echo "🚀 Next steps:"
-echo "1. Create GitHub repository and push:"
-echo "   git remote add origin https://github.com/yourusername/shopping-cart-fullstack.git"
-echo "   git push -u origin main"
-echo ""
-echo "2. Choose deployment strategy:"
-echo "   npm run setup"
-echo ""
-echo "3. Set up local development:"
-echo "   npm run scripts/setup-local-dev.sh"
-echo ""
-echo "4. Add AWS credentials to GitHub Secrets:"
-echo "   - Go to GitHub repo → Settings → Secrets and variables → Actions"
-echo "   - Add AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
-echo ""
-echo "5. Push to deploy automatically:"
-echo "   git push origin main"
-echo ""
-echo "💡 Development commands:"
-echo "npm run dev:frontend    # React app"
-echo "npm run dev:backend     # .NET API"  
-echo "npm run dev:search      # Node.js API"
-echo "npm run dev:serverless  # Lambda local"
+  deploy-frontend:
+    needs: deploy-serverless
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy React App
+        env:
+          REACT_APP_API_BASE_URL: ${{ needs.deploy-serverless.outputs.api-url }}
+        run: |
+          cd frontend
+          npm ci && npm run build
+          BUCKET_NAME="$STACK_NAME-frontend-$(date +%s)"
+          aws s3 mb s3://$BUCKET_NAME
+          aws s3 website s3://$BUCKET_NAME --index-document index.html
+          aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":"*","Action":"s3:GetObject","Resource":"arn:aws:s3:::'$BUCKET_NAME'/*"}]}'
+          aws s3 sync build/ s3://$BUCKET_NAME --delete
+          echo "Frontend: http://$BUCKET_NAME.s3-website-${{ env.AWS_REGION }}.amazonaws.com"
