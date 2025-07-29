@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { orderAPI } from "../../services/api";
-import { Order, CreateOrderRequest } from "../../types";
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { orderAPI } from '../../services/api';
+import { Order, CreateOrderRequest } from '../../types';
 
 interface OrderState {
   currentOrder: Order | null;
@@ -11,17 +11,20 @@ interface OrderState {
 }
 
 export const createOrder = createAsyncThunk(
-  "order/createOrder",
+  'order/createOrder',
   async (orderData: CreateOrderRequest) => {
     const response = await orderAPI.create(orderData);
     return response;
   }
 );
 
-export const fetchOrders = createAsyncThunk("order/fetchOrders", async () => {
-  const response = await orderAPI.getAll();
-  return response;
-});
+export const fetchOrders = createAsyncThunk(
+  'order/fetchOrders',
+  async () => {
+    const response = await orderAPI.getAll();
+    return response;
+  }
+);
 
 const initialState: OrderState = {
   currentOrder: null,
@@ -32,7 +35,7 @@ const initialState: OrderState = {
 };
 
 const orderSlice = createSlice({
-  name: "order",
+  name: 'order',
   initialState,
   reducers: {
     clearOrder: (state) => {
@@ -60,7 +63,7 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Failed to create order";
+        state.error = action.error.message || 'Failed to create order';
         state.orderSubmitted = false;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
